@@ -131,7 +131,7 @@ class LineStyle {
     }
 }
 
-class Vector {
+class Vector3D {
     constructor(x=0, y=0, z=0) {
         this.x = Number(x);
         this.y = Number(y);
@@ -145,23 +145,121 @@ class Vector {
     }
 
     added(vector) {
-        return new Vector(this.x + vector.x, this.y + vector.y, this.z + vector.z);
+        return new Vector3D(this.x + vector.x, this.y + vector.y, this.z + vector.z);
     }
 	
 	subtracted(vector) {
-        return new Vector(this.x - vector.x, this.y - vector.y, this.z - vector.z);
+        return new Vector3D(this.x - vector.x, this.y - vector.y, this.z - vector.z);
+    }
+}
+
+class Matrix {
+    constructor(matrix=null, size=null, value=0) {
+        if (matrix !== null) {
+            this.matrix = matrix;
+        } else {
+            this.matrix = []
+            for (let i = 0; i < size[0]; i++) {
+                this.matrix.push([]);
+                for (let j = 0; j < size[1]; j++) {
+                    this.matrix[i].push(value)
+                }
+
+            }
+        }
+    }
+
+    get m() {
+        return this.matrix.length;
+    }
+    get n() {
+        return this.matrix[0].length;
+    }
+
+    transformVector(vector) {
+        let result = new Array(this.m);
+        result.fill(0);
+
+        for (let i = 0; i < result.length; i++) {
+            for (let j = 0; j < Math.min(vector.length, this.n); j++) {
+                result[i] += this.matrix[i][j] * vector[j];
+            }
+        }
+        return result;
+    }
+
+    multipliedBy(matrix) {
+        let m = matrix.matrix.length;
+        let n = this.matrix[0].length;
+        let result = new Matrix(null, [m, n]);
+
+        for (let i = 0; i < n; i++) {
+            let vector = new Array(n);
+            for (let j = 0; j < m; j++) {
+                vector[j] = this.matrix[j][i];
+            }
+            vector = matrix.transformVector(vector);
+            for (let j = 0; j < m; j++) {
+                result.matrix[j][i] = vector[j];
+            }
+        }
+
+        return result;
     }
 }
 
 class View {
-    constructor(longitude = 0, latitude = 0, offset = new Vector(0, 0, 0), zoom = 100) {
-        this.longitude = longitude;
-        this.latitude = latitude;
+    constructor(longitude = 0, latitude = 0, offset = new Vector3D(0, 0, 0), zoom = 100) {
+        this._longitude = longitude;
+        this._latitude = latitude;
         this.offset = offset;
         this.zoom = zoom;
+        this.updateMatrix();
     }
 
-    projectVector(vectorInput) {
+    set longitude(value) {
+        this._longitude = value;
+        this.updateMatrix();
+    }
+    get longitude() {
+        return this._longitude;
+    }
+
+    set latitude(value) {
+        this._latitude = value;
+        this.updateMatrix();
+    }
+    get latitude() {
+        return this._latitude;
+    }
+
+
+    updateMatrix() {
+        let lo = this._longitude / 180 * Math.PI;
+        let la = this._latitude / 180 * Math.PI;
+
+        let cos = Math.cos;
+        let sin = Math.sin;
+
+        let longMatrix = new Matrix([
+            [cos(lo), 0, sin(lo)],
+            [0,       1, 0       ],
+            [-sin(lo), 0, cos(lo) ]
+        ]);
+
+        let latMatrix = new Matrix([
+            [1, 0,        0      ],
+            [0, cos(la),  sin(la)],
+            [0, -sin(la), cos(la)]
+        ]);
+        
+        this.matrix = longMatrix.multipliedBy(latMatrix);
+    }
+
+
+
+
+    projectVectorIso(vectorInput) {
         let x = 0;
         let y = 0;
 
@@ -177,22 +275,108 @@ class View {
         x *= this.zoom;
         y *= this.zoom;
 
-        return new Vector(x, y);
+        return new Vector3D(x, y);
+    }
+
+    projectVector(vectorInput) {
+        let vector = [vectorInput[0] - this.offset.x, vectorInput[1] - this.offset.y, vectorInput[2] - this.offset.z];
+
+        let transformed = this.matrix.transformVector(vector);
+        
+        
+        transformed[2] += this.zoom;
+        let x = 0;
+        let y = 0;
+
+        x += transformed[0] / transformed[2] * 600;
+        y += transformed[1] / transformed[2] * 600;
+        
+
+        
+        return new Vector3D(x, y);
+    }
+
+    calculateClip(lineStart, lineEnd) {
+        let vector1 = [lineStart[0] - this.offset.x, lineStart[1] - this.offset.y, lineStart[2] - this.offset.z];
+        let vector2 = [lineEnd[0] - this.offset.x, lineEnd[1] - this.offset.y, lineEnd[2] - this.offset.z];
+
+        let transformed1 = this.matrix.transformVector(vector1);
+        let transformed2 = this.matrix.transformVector(vector2);
+
+        
+        // If there is something behind
+        if (transformed1[2] + this.zoom < 0 || transformed2[2] + this.zoom < 0) {
+            // If there is clipping
+            if (transformed1[2] + this.zoom < 0 !== transformed2[2] + this.zoom < 0) {
+                if (lineStart[0] > 0.01 && lineStart[0] < 0.06) {
+                    console.log("weq")
+                }
+
+                transformed1[2] += this.zoom;
+                transformed2[2] += this.zoom;
+
+                let dx = transformed2[0] - transformed1[0];
+                let dy = transformed2[1] - transformed1[1];
+                let dz = transformed2[2] - transformed1[2];
+
+                let clippingPoint = [transformed1[0] + dx * (transformed1[2] / dz), transformed1[1] + dy * (transformed1[2] / dz), 0];
+
+                let point1;
+                let point2;
+
+                // If first point is behind (I know this is not ideal)
+                if (transformed1[2] < 0) {
+                    point1 = new Vector3D(...lineEnd);
+
+                    let c = transformed2[2] / Math.abs(dz);
+
+                    point2 = new Vector3D(lineEnd[0] - (lineEnd[0] - lineStart[0]) * c * 0.99, lineEnd[1] - (lineEnd[1] - lineStart[1]) * c * 0.99, lineEnd[2] - (lineEnd[2] - lineStart[2]) * c * 0.99);
+
+                // If second point is behind
+                } else {
+                    point1 = new Vector3D(...lineStart);
+
+                    let c = transformed1[2] / Math.abs(dz);
+
+                    point2 = new Vector3D(lineStart[0] - (lineStart[0] - lineEnd[0]) * c * 0.99, lineStart[1] - (lineStart[1] - lineEnd[1]) * c * 0.99, lineStart[2] - (lineStart[2] - lineEnd[2]) * c * 0.99);
+                }
+                //console.log(point1, point2);
+                
+               
+                return [point1, point2];
+
+            }
+            //console.log("disappeared", lineStart, lineEnd);
+            
+            return null;
+        }
+
+        // No clipping
+        
+        return [new Vector3D(...lineStart), new Vector3D(...lineEnd)];
+        
     }
 }
 
 
-function drawCanvas3d(canvas, point1, point2, lineStyle, view) {
+function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
     let ctx = canvas.getContext("2d");
     let width = canvas.width;
     let height = canvas.height;
     let originalStyle = new LineStyle(ctx.lineWidth, ctx.strokeStyle);
+
+    clipped = view.calculateClip([lineStart.x, lineStart.y, lineStart.z], [lineEnd.x, lineEnd.y, lineEnd.z]);
+    if (clipped == null) return;
+    let point1 = clipped[0];
+    let point2 = clipped[1];
+    
     
     ctx.lineWidth = lineStyle.width;
     ctx.strokeStyle = lineStyle.color;
 
-    let start = view.projectVector(point1);
-    let end = view.projectVector(point2);
+    let start = view.projectVector([point1.x, point1.y, point1.z]);
+    let end = view.projectVector([point2.x, point2.y, point2.z]);
+
     start.x += width * 0.5;
     start.y = height * 0.5 - start.y;
 
@@ -220,18 +404,19 @@ function drawAxisLines(canvas, view) {
     let pixelRatio = window.devicePixelRatio;
 
 
-    drawCanvas3d(canvas, new Vector(-view.zoom, 0, 0), new Vector(0, 0, 0), new LineStyle(1 * pixelRatio, "#00FF00"), view);
-    drawCanvas3d(canvas, new Vector(view.zoom, 0, 0), new Vector(0, 0, 0), new LineStyle(2 * pixelRatio, "#00FF00"), view);
-    drawCanvas3d(canvas, new Vector(0, -view.zoom, 0), new Vector(0, 0, 0), new LineStyle(1 * pixelRatio, "#FF0000"), view);
-    drawCanvas3d(canvas, new Vector(0, view.zoom, 0), new Vector(0, 0, 0), new LineStyle(2 * pixelRatio, "#FF0000"), view);
-    drawCanvas3d(canvas, new Vector(0, 0, -view.zoom), new Vector(0, 0, 0), new LineStyle(1 * pixelRatio, "#0000FF"), view);
-    drawCanvas3d(canvas, new Vector(0, 0, view.zoom), new Vector(0, 0, 0), new LineStyle(2 * pixelRatio, "#0000FF"), view);
+    drawCanvas3d(canvas, new Vector3D(-20, 0, 0), new Vector3D(0, 0, 0), new LineStyle(1 * pixelRatio, "#00FF00"), view);
+    drawCanvas3d(canvas, new Vector3D(20, 0, 0), new Vector3D(0, 0, 0), new LineStyle(2 * pixelRatio, "#00FF00"), view);
+    drawCanvas3d(canvas, new Vector3D(0, -20, 0), new Vector3D(0, 0, 0), new LineStyle(1 * pixelRatio, "#FF0000"), view);
+    drawCanvas3d(canvas, new Vector3D(0, 20, 0), new Vector3D(0, 0, 0), new LineStyle(2 * pixelRatio, "#FF0000"), view);
+    drawCanvas3d(canvas, new Vector3D(0, 0, -20), new Vector3D(0, 0, 0), new LineStyle(1 * pixelRatio, "#0000FF"), view);
+    drawCanvas3d(canvas, new Vector3D(0, 0, 20), new Vector3D(0, 0, 0), new LineStyle(2 * pixelRatio, "#0000FF"), view);
 
     let ctx = canvas.getContext("2d");
 
-    let xVector = view.projectVector(new Vector(1, 0, 0));
-    let yVector = view.projectVector(new Vector(0, 1, 0));
-    let zVector = view.projectVector(new Vector(0, 0, 1));
+    // TODO: fix numbers
+    let xVector = view.projectVector([1, 0, 0]);
+    let yVector = view.projectVector([0, 1, 0]);
+    let zVector = view.projectVector([0, 0, 1]);
     ctx.font = `${20 * pixelRatio}px Arial`;
     ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);
     ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);
@@ -250,10 +435,10 @@ function drawFunction(canvas, begin, end, step = 0.1, view) {
     let lastValue = resultList[0];
     for (let j = 0; j < lastValue.length; j++) {
         // Real component line
-        drawCanvas3d(canvas, new Vector(begin, 0, 0), new Vector(begin, lastValue[j].re, 0), reStyle, view);
+        drawCanvas3d(canvas, new Vector3D(begin, 0, 0), new Vector3D(begin, lastValue[j].re, 0), reStyle, view);
 
         // Imaginary component line
-        drawCanvas3d(canvas, new Vector(begin, 0, 0), new Vector(begin, 0, lastValue[j].im), imStyle, view);
+        drawCanvas3d(canvas, new Vector3D(begin, 0, 0), new Vector3D(begin, 0, lastValue[j].im), imStyle, view);
     }
     
     for (let i = 1; i <= (end - begin) / step; i++) {
@@ -265,15 +450,15 @@ function drawFunction(canvas, begin, end, step = 0.1, view) {
         // Each element in the result
         for (let j = 0; j < result.length; j++) {
             // Function line
-            drawCanvas3d(canvas, new Vector(x - step, lastValue[j].re, lastValue[j].im), new Vector(x, result[j].re, result[j].im), style, view);
+            drawCanvas3d(canvas, new Vector3D(x - step, lastValue[j].re, lastValue[j].im), new Vector3D(x, result[j].re, result[j].im), style, view);
             
             // Real component line
-            drawCanvas3d(canvas, new Vector(x, 0, 0), new Vector(x, result[j].re, 0), reStyle, view);
-            drawCanvas3d(canvas, new Vector(x - step, lastValue[j].re, 0), new Vector(x, result[j].re, 0), reStyle, view);
+            drawCanvas3d(canvas, new Vector3D(x, 0, 0), new Vector3D(x, result[j].re, 0), reStyle, view);
+            drawCanvas3d(canvas, new Vector3D(x - step, lastValue[j].re, 0), new Vector3D(x, result[j].re, 0), reStyle, view);
     
             // Imaginary component line
-            drawCanvas3d(canvas, new Vector(x, 0, 0), new Vector(x, 0, result[j].im), imStyle, view);
-            drawCanvas3d(canvas, new Vector(x - step, 0, lastValue[j].im), new Vector(x, 0, result[j].im), imStyle, view);
+            drawCanvas3d(canvas, new Vector3D(x, 0, 0), new Vector3D(x, 0, result[j].im), imStyle, view);
+            drawCanvas3d(canvas, new Vector3D(x - step, 0, lastValue[j].im), new Vector3D(x, 0, result[j].im), imStyle, view);
         }
         
         lastValue = result;
@@ -288,13 +473,13 @@ var xOffset = document.getElementById("x-offset");
 var yOffset = document.getElementById("y-offset");
 var zOffset = document.getElementById("z-offset");
 
-var view = new View(40, 30, new Vector(xOffset.value, yOffset.value, zOffset.value), 100);
+var view = new View(40, 30, new Vector3D(xOffset.value, yOffset.value, zOffset.value), 5);
 
 var resultList = [];
 
 
 function updateView() {
-    view.offset = new Vector(xOffset.value, yOffset.value, zOffset.value);
+    view.offset = new Vector3D(xOffset.value, yOffset.value, zOffset.value);
     updateCanvas();
 }
 
@@ -316,6 +501,7 @@ function updateCanvas() {
     drawAxisLines(mainCanvas, view);
 
     drawFunction(mainCanvas, Math.min(minX, maxX), Math.max(minX, maxX), resolution, view);
+
 }
 
 function updateFunctionValues(func) {
@@ -644,7 +830,7 @@ addVarElementBtn.addEventListener("click", addVariableElement);
 
 mainCanvas.addEventListener("wheel", function(event) {
     event.preventDefault();    
-    view.zoom = Math.pow(10, Math.log10(view.zoom) - event.deltaY * 0.001);
+    view.zoom = Math.pow(10, Math.log10(view.zoom) + event.deltaY * 0.001);
     updateCanvas();
     
 });
