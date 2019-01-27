@@ -1,0 +1,72 @@
+<!--
+
+    Copyright Oscar Litorell 2019
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if (location.href[location.href.length-1] != "/") location.href += "/"</script> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
+    <title>Complex Numbers</title>
+</head>
+<body>
+
+    <div class="flex-container">
+
+
+        <section class="graph">
+                <canvas id="maincanvas" width="800" height="600"></canvas>
+                <div class="graph-controls">
+                    <div class="inline">
+                        <p>x Offset:</p>
+                        <input type="number" id="x-offset" value="0">
+                    </div>
+                    <div class="inline">
+                        <p>Real Offset:</p>
+                        <input type="number" id="y-offset" value="0">
+                    </div>
+                    <div class="inline">
+                        <p>Imaginary Offset:</p>
+                        <input type="number" id="z-offset" value="0">
+                    </div>
+                    <div class="inline">
+                        <p>Graph starts at: </p>
+                        <input type="number" onchange="updateFunction()" id="minX" value="-2">
+                    </div>
+                    <div class="inline">
+                        <p>Graph ends at: </p>
+                        <input type="number" onchange="updateFunction()" id="maxX" value="2">
+                    </div>
+                    <div class="inline">
+                        <p>Graph resolution: </p>
+                        <input type="number" onchange="updateFunction()" id="resolution" value="0.05">
+                    </div>
+                    <p class="button" onclick="fullscreen(event)">Set fullscreen</p>
+
+                </div>
+        </section>
+
+
+        <section class="list function">
+            <h2>Function</h2>
+            <textarea id="function" rows="20" autocorrect="off" autocomplete="off" spellcheck="off"></textarea>
+            <p class="button" onclick="updateFunction()">Set function</p>
+			<a href="docs/" target="_blank">Hur funkar det?</a>
+        </section>
+        <section class="list">
+            <h2>Variables</h2>
+            <ul id="variable-list">
+
+            </ul>
+            <p class="button" id="addVariableElement">+ Add variable</p>
+        </section>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
