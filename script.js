@@ -288,8 +288,8 @@ class View {
         let x = 0;
         let y = 0;
 
-        x += transformed[0] / transformed[2] * 600;
-        y += transformed[1] / transformed[2] * 600;
+        x += transformed[0] / transformed[2] * 1000;
+        y += transformed[1] / transformed[2] * 1000;
         
 
         
@@ -308,9 +308,6 @@ class View {
         if (transformed1[2] + this.zoom < 0 || transformed2[2] + this.zoom < 0) {
             // If there is clipping
             if (transformed1[2] + this.zoom < 0 !== transformed2[2] + this.zoom < 0) {
-                if (lineStart[0] > 0.01 && lineStart[0] < 0.06) {
-                    console.log("weq")
-                }
 
                 transformed1[2] += this.zoom;
                 transformed2[2] += this.zoom;
@@ -340,13 +337,11 @@ class View {
 
                     point2 = new Vector3D(lineStart[0] - (lineStart[0] - lineEnd[0]) * c * 0.99, lineStart[1] - (lineStart[1] - lineEnd[1]) * c * 0.99, lineStart[2] - (lineStart[2] - lineEnd[2]) * c * 0.99);
                 }
-                //console.log(point1, point2);
                 
                
                 return [point1, point2];
 
             }
-            //console.log("disappeared", lineStart, lineEnd);
             
             return null;
         }
@@ -412,16 +407,27 @@ function drawAxisLines(canvas, view) {
     drawCanvas3d(canvas, new Vector3D(0, 0, 20), new Vector3D(0, 0, 0), new LineStyle(2 * pixelRatio, "#0000FF"), view);
 
     let ctx = canvas.getContext("2d");
+    ctx.font = `${20 * pixelRatio}px Arial`;
 
     // TODO: fix numbers
-    let xVector = view.projectVector([1, 0, 0]);
+    if (view.matrix.transformVector([1 - view.offset.x, -view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
+        let xVector = view.projectVector([1, 0, 0]);
+        ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);    
+    }
+    if (view.matrix.transformVector([-view.offset.x, 1 - view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
+        let yVector = view.projectVector([0, 1, 0]);
+        ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);    
+    }
+    if (view.matrix.transformVector([-view.offset.x, -view.offset.y, 1 - view.offset.z])[2] + view.zoom > 0) {
+        let zVector = view.projectVector([0, 0, 1]);
+        ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);    
+    }
+    /*
     let yVector = view.projectVector([0, 1, 0]);
     let zVector = view.projectVector([0, 0, 1]);
-    ctx.font = `${20 * pixelRatio}px Arial`;
-    ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);
     ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);
     ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);
-
+    */
 }
 
 
@@ -436,7 +442,6 @@ function drawFunction(canvas, begin, end, step = 0.1, view) {
     for (let j = 0; j < lastValue.length; j++) {
         // Real component line
         drawCanvas3d(canvas, new Vector3D(begin, 0, 0), new Vector3D(begin, lastValue[j].re, 0), reStyle, view);
-
         // Imaginary component line
         drawCanvas3d(canvas, new Vector3D(begin, 0, 0), new Vector3D(begin, 0, lastValue[j].im), imStyle, view);
     }
@@ -883,7 +888,7 @@ function rotateGraph(event) {
             var y = (event.touches[0].pageY + event.touches[1].pageY) * 0.5;
 
             let distance = Math.sqrt(Math.pow(event.touches[0].pageX - event.touches[1].pageX, 2) + Math.pow(event.touches[0].pageY - event.touches[1].pageY, 2));
-            view.zoom = originalZoom * (distance / originalDistance);
+            view.zoom = originalZoom * (originalDistance / distance);
         }
 
 
