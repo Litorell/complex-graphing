@@ -283,13 +283,14 @@ class View {
 
         let transformed = this.matrix.transformVector(vector);
         
+        let fovCoeff = Math.max(mainCanvas.width, mainCanvas.height) * 0.5;
         
         transformed[2] += this.zoom;
         let x = 0;
         let y = 0;
 
-        x += transformed[0] / transformed[2] * 1000;
-        y += transformed[1] / transformed[2] * 1000;
+        x += transformed[0] / transformed[2] * fovCoeff;
+        y += transformed[1] / transformed[2] * fovCoeff;
         
 
         
@@ -422,12 +423,6 @@ function drawAxisLines(canvas, view) {
         let zVector = view.projectVector([0, 0, 1]);
         ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);    
     }
-    /*
-    let yVector = view.projectVector([0, 1, 0]);
-    let zVector = view.projectVector([0, 0, 1]);
-    ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);
-    ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);
-    */
 }
 
 
