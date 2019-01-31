@@ -260,7 +260,7 @@ class View {
 
 
 
-    projectVectorParallel(vectorInput) {
+    projectVectorOrtho(vectorInput) {
         let vector = [vectorInput[0] - this.offset.x, vectorInput[1] - this.offset.y, vectorInput[2] - this.offset.z];
 
         let transformed = this.matrix.transformVector(vector);
@@ -363,8 +363,8 @@ function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
     } else {
         let point1 = lineStart;
         let point2 = lineEnd;
-        start = view.projectVectorParallel([point1.x, point1.y, point1.z]);
-        end = view.projectVectorParallel([point2.x, point2.y, point2.z]);
+        start = view.projectVectorOrtho([point1.x, point1.y, point1.z]);
+        end = view.projectVectorOrtho([point2.x, point2.y, point2.z]);
     }
 
     start.x += width * 0.5;
@@ -419,11 +419,11 @@ function drawAxisLines(canvas, view) {
             ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);    
         }
     } else {
-        let xVector = view.projectVectorParallel([1, 0, 0]);
+        let xVector = view.projectVectorOrtho([1, 0, 0]);
         ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);    
-        let yVector = view.projectVectorParallel([0, 1, 0]);
+        let yVector = view.projectVectorOrtho([0, 1, 0]);
         ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);    
-        let zVector = view.projectVectorParallel([0, 0, 1]);
+        let zVector = view.projectVectorOrtho([0, 0, 1]);
         ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);
     }
 }
