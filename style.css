@@ -41,6 +41,7 @@ section.list {
 
 section:not(:first-child) {
     border-left: 1px solid #aaa;
+	max-width: 400px;
 }
 
 div.inline {
