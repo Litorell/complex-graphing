@@ -209,11 +209,12 @@ class Matrix {
 }
 
 class View {
-    constructor(longitude = 0, latitude = 0, offset = new Vector3D(0, 0, 0), zoom = 100) {
+    constructor(longitude = 0, latitude = 0, offset = new Vector3D(0, 0, 0), zoom = 100, projection="perspective") {
         this._longitude = longitude;
         this._latitude = latitude;
         this.offset = offset;
         this.zoom = zoom;
+        this.projection = projection;
         this.updateMatrix();
     }
 
@@ -259,22 +260,14 @@ class View {
 
 
 
-    projectVectorIso(vectorInput) {
-        let x = 0;
-        let y = 0;
+    projectVectorOrtho(vectorInput) {
+        let vector = [vectorInput[0] - this.offset.x, vectorInput[1] - this.offset.y, vectorInput[2] - this.offset.z];
 
-        let vector = vectorInput.subtracted(this.offset);
+        let transformed = this.matrix.transformVector(vector);
 
-        x += vector.x * Math.cos(this.longitude / 180 * Math.PI);
-        x += vector.z * -Math.sin(this.longitude / 180 * Math.PI);
-
-        y += vector.y * Math.cos(this.latitude / 180 * Math.PI);
-        y += -Math.sin(this.latitude / 180 * Math.PI) * Math.sin(this.longitude / 180 * Math.PI) * vector.x;
-        y += -Math.sin(this.latitude / 180 * Math.PI) * Math.cos(this.longitude / 180 * Math.PI) * vector.z;
-
-        x *= this.zoom;
-        y *= this.zoom;
-
+        let x = transformed[0] / this.zoom * 600;
+        let y = transformed[1] / this.zoom * 600;
+        
         return new Vector3D(x, y);
     }
 
@@ -286,13 +279,9 @@ class View {
         let fovCoeff = Math.max(mainCanvas.width, mainCanvas.height) * 0.5;
         
         transformed[2] += this.zoom;
-        let x = 0;
-        let y = 0;
 
-        x += transformed[0] / transformed[2] * fovCoeff;
-        y += transformed[1] / transformed[2] * fovCoeff;
-        
-
+        let x = transformed[0] / transformed[2] * fovCoeff;
+        let y = transformed[1] / transformed[2] * fovCoeff;
         
         return new Vector3D(x, y);
     }
@@ -313,11 +302,7 @@ class View {
                 transformed1[2] += this.zoom;
                 transformed2[2] += this.zoom;
 
-                let dx = transformed2[0] - transformed1[0];
-                let dy = transformed2[1] - transformed1[1];
                 let dz = transformed2[2] - transformed1[2];
-
-                let clippingPoint = [transformed1[0] + dx * (transformed1[2] / dz), transformed1[1] + dy * (transformed1[2] / dz), 0];
 
                 let point1;
                 let point2;
@@ -360,18 +345,27 @@ function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
     let width = canvas.width;
     let height = canvas.height;
     let originalStyle = new LineStyle(ctx.lineWidth, ctx.strokeStyle);
-
-    clipped = view.calculateClip([lineStart.x, lineStart.y, lineStart.z], [lineEnd.x, lineEnd.y, lineEnd.z]);
-    if (clipped == null) return;
-    let point1 = clipped[0];
-    let point2 = clipped[1];
-    
     
     ctx.lineWidth = lineStyle.width;
     ctx.strokeStyle = lineStyle.color;
+    let start;
+    let end;
 
-    let start = view.projectVector([point1.x, point1.y, point1.z]);
-    let end = view.projectVector([point2.x, point2.y, point2.z]);
+    if (view.projection === "perspective") {
+        clipped = view.calculateClip([lineStart.x, lineStart.y, lineStart.z], [lineEnd.x, lineEnd.y, lineEnd.z]);
+        if (clipped == null) return;
+        let point1 = clipped[0];
+        let point2 = clipped[1];
+        
+        start = view.projectVector([point1.x, point1.y, point1.z]);
+        end = view.projectVector([point2.x, point2.y, point2.z]);
+    
+    } else {
+        let point1 = lineStart;
+        let point2 = lineEnd;
+        start = view.projectVectorOrtho([point1.x, point1.y, point1.z]);
+        end = view.projectVectorOrtho([point2.x, point2.y, point2.z]);
+    }
 
     start.x += width * 0.5;
     start.y = height * 0.5 - start.y;
@@ -410,18 +404,27 @@ function drawAxisLines(canvas, view) {
     let ctx = canvas.getContext("2d");
     ctx.font = `${20 * pixelRatio}px Arial`;
 
-    // TODO: fix numbers
-    if (view.matrix.transformVector([1 - view.offset.x, -view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
-        let xVector = view.projectVector([1, 0, 0]);
+
+    if (view.projection === "perspective") {
+        if (view.matrix.transformVector([1 - view.offset.x, -view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
+            let xVector = view.projectVector([1, 0, 0]);
+            ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);    
+        }
+        if (view.matrix.transformVector([-view.offset.x, 1 - view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
+            let yVector = view.projectVector([0, 1, 0]);
+            ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);    
+        }
+        if (view.matrix.transformVector([-view.offset.x, -view.offset.y, 1 - view.offset.z])[2] + view.zoom > 0) {
+            let zVector = view.projectVector([0, 0, 1]);
+            ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);    
+        }
+    } else {
+        let xVector = view.projectVectorOrtho([1, 0, 0]);
         ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);    
-    }
-    if (view.matrix.transformVector([-view.offset.x, 1 - view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
-        let yVector = view.projectVector([0, 1, 0]);
+        let yVector = view.projectVectorOrtho([0, 1, 0]);
         ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);    
-    }
-    if (view.matrix.transformVector([-view.offset.x, -view.offset.y, 1 - view.offset.z])[2] + view.zoom > 0) {
-        let zVector = view.projectVector([0, 0, 1]);
-        ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);    
+        let zVector = view.projectVectorOrtho([0, 0, 1]);
+        ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);
     }
 }
 
@@ -940,7 +943,7 @@ function resize() {
     updateCanvas();
 }
 
-function fullscreen(event) {
+function fullscreen() {
     let pixelRatio = window.devicePixelRatio;
     window.removeEventListener("resize", resize);
 
@@ -963,7 +966,11 @@ function fullscreen(event) {
     window.addEventListener("resize", resize);
 }
 
-
+document.getElementById("projection").addEventListener("change", function(event) {
+    let type = event.target.value;
+    view.projection = type;
+    updateCanvas();
+});
 
 window.addEventListener("resize", resize);
 
