@@ -69,6 +69,29 @@ class Complex {
         return new Complex(Math.log(polar.r), polar.theta);
     }
 
+    static cos(num1) {
+        if (num1.constructor !== Complex) num1 = new Complex(num1);
+        let e = new Complex(Math.E);
+        let c = Complex;
+
+        // (e^(ix) + e^(-ix)) * 0.5
+        return c.multiply(c.add(c.raise(e, c.multiply(new Complex(0, 1), num1)), c.raise(e, c.multiply(new Complex(0, -1), num1))), 0.5);
+    }
+
+    static sin(num1) {
+        if (num1.constructor !== Complex) num1 = new Complex(num1);
+        let e = new Complex(Math.E);
+        let c = Complex;
+
+        // (e^(-ix) - e^(ix)) * 0.5i
+        return c.multiply(c.subtract(c.raise(e, c.multiply(new Complex(0, -1), num1)), c.raise(e, c.multiply(new Complex(0, 1), num1))), new Complex(0, 0.5));
+    }
+
+    static tan(num1) {
+        if (num1.constructor !== Complex) num1 = new Complex(num1);
+        return Complex.divide(Complex.sin(num1), Complex.cos(num1));
+    }
+
     static raise(num1, num2) {
         if (num1.constructor !== Complex) num1 = new Complex(num1);
         if (num2.constructor !== Complex) num2 = new Complex(num2);
@@ -532,7 +555,10 @@ let operations = {
     "/": {args: 2, function: "divide"},
     "^": {args: 2, function: "raise"},
     "ln": {args: 1, function: "ln"},
-    "abs": {args: 1, function: "abs"}
+    "abs": {args: 1, function: "abs"},
+    "sin": {args: 1, function: "sin"},
+    "cos": {args: 1, function: "cos"},
+    "tan": {args: 1, function: "tan"}
 };
 
 
