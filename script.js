@@ -639,6 +639,8 @@ function updateFunction() {
 
 function userFunction(num) {
 
+    let localVars = {};
+
     let functionList = functionText.split("\n").filter(line => line.trim() !== "");
 
     let functionStack = [];
@@ -653,8 +655,13 @@ function userFunction(num) {
         // Check if line should be interpreted
         } else if (line !== "" && line [0] !== "#") {
             let variableIndex = getVariableIndex(line);
+            let isLocalVariable = Object.keys(localVars).includes(line);
             
-            if (operations.hasOwnProperty(line)) {
+            // Store variable
+            if (line[0] === "=") {
+                localVars[line.substring(1).trim()] = functionStack.pop();
+
+            } else if (operations.hasOwnProperty(line)) {
                 // Operation
                 let operation = operations[line];
                 let values = functionStack.slice(functionStack.length - operation.args);
@@ -663,9 +670,11 @@ function userFunction(num) {
                 functionStack.push(value);
                 
             } else if (variableIndex !== -1) {
-                // Variable
+                // User variable
                 functionStack.push(variableList[variableIndex].value);
-
+            
+            } else if (isLocalVariable) {
+                functionStack.push(localVars[line.trim()]);
             } else {
                 // Constant
                 functionStack.push(parseNumber(line));
