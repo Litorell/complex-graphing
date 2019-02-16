@@ -4,23 +4,26 @@
 
 */
 
+// Class that handles complex numbers and mathematical operations with complex numbers.
 class Complex {
     constructor(re=0, im=0) {
         this.re = Number(re);
         this.im = Number(im);    
     }
 
+    // Prints nicely
     print() {
         return `${this.re} + ${this.im}i`;
     }
 
+    // From polar coordinates
     static fromPolar(r, theta) {
         let re = r * Math.cos(theta);
         let im = r * Math.sin(theta);
         return new Complex(re, im);
     }
 
-
+    // Add two numbers
     static add(num1, num2) {
         if (num1.constructor !== Complex) num1 = new Complex(num1);
         if (num2.constructor !== Complex) num2 = new Complex(num2);
@@ -31,6 +34,7 @@ class Complex {
         return out;
     }
 
+    // Subtract one number from another
     static subtract(num1, num2) {
         if (num1.constructor !== Complex) num1 = new Complex(num1);
         if (num2.constructor !== Complex) num2 = new Complex(num2);
@@ -41,6 +45,7 @@ class Complex {
         return out;
     }
 
+    // Multiply two numbers
     static multiply(in1, in2) {
         if (in1.constructor !== Complex) in1 = new Complex(in1);
         if (in2.constructor !== Complex) in2 = new Complex(in2);
@@ -56,6 +61,7 @@ class Complex {
         return out;
     }
 
+    // Divide one number with another
     static divide(num1, num2) {
         if (num1.constructor !== Complex) num1 = new Complex(num1);
         if (num2.constructor !== Complex) num2 = new Complex(num2);
@@ -63,12 +69,14 @@ class Complex {
         return Complex.multiply(num1, num2);
     }
 
+    // Natural logarithm
     static ln(num1) {
         if (num1.constructor !== Complex) num1 = new Complex(num1);
         let polar = Complex.toPolar(num1);
         return new Complex(Math.log(polar.r), polar.theta);
     }
 
+    // Cosine
     static cos(num1) {
         if (num1.constructor !== Complex) num1 = new Complex(num1);
         let e = new Complex(Math.E);
@@ -78,6 +86,7 @@ class Complex {
         return c.multiply(c.add(c.raise(e, c.multiply(new Complex(0, 1), num1)), c.raise(e, c.multiply(new Complex(0, -1), num1))), 0.5);
     }
 
+    // Sine
     static sin(num1) {
         if (num1.constructor !== Complex) num1 = new Complex(num1);
         let e = new Complex(Math.E);
@@ -87,11 +96,13 @@ class Complex {
         return c.multiply(c.subtract(c.raise(e, c.multiply(new Complex(0, -1), num1)), c.raise(e, c.multiply(new Complex(0, 1), num1))), new Complex(0, 0.5));
     }
 
+    // Tangent
     static tan(num1) {
         if (num1.constructor !== Complex) num1 = new Complex(num1);
         return Complex.divide(Complex.sin(num1), Complex.cos(num1));
     }
 
+    // Exponents
     static raise(num1, num2) {
         if (num1.constructor !== Complex) num1 = new Complex(num1);
         if (num2.constructor !== Complex) num2 = new Complex(num2);
@@ -102,7 +113,7 @@ class Complex {
 
         let num1Polar = Complex.toPolar(num1);
 
-        // Absolute value and argument of base (this)
+        // Absolute value and argument of base
         let absB = num1Polar.r;
         let argB = num1Polar.theta;
         
@@ -111,10 +122,12 @@ class Complex {
         return out;
     }
 
+    // Absolute value
     static abs(num) {
         return new Complex(Complex.toPolar(num).r);
     }
 
+    // To polar coordinates (radius and angle)
     static toPolar(num) {
         let r = Math.pow(Math.pow(num.re, 2) + Math.pow(num.im, 2), 0.5);
         let theta = Math.atan2(num.im, num.re);
@@ -147,12 +160,14 @@ class Complex {
 
 }
 
+// Class which holds a certain style of line (color and width), used when drawing on canvas.
 class LineStyle {
     constructor(width, color) {
         this.width = width;
         this.color = color;
     }
 }
+
 
 class Vector3D {
     constructor(x=0, y=0, z=0) {
@@ -176,7 +191,9 @@ class Vector3D {
     }
 }
 
+// Matrix class, also supports matrix multiplication.
 class Matrix {
+    // Can either be initialized with an array of arrays (2D array) or two dimensions and a default value.
     constructor(matrix=null, size=null, value=0) {
         if (matrix !== null) {
             this.matrix = matrix;
@@ -192,13 +209,17 @@ class Matrix {
         }
     }
 
+    // Height of the matrix
     get m() {
         return this.matrix.length;
     }
+    // Width of the matrix
     get n() {
         return this.matrix[0].length;
     }
 
+    // Applies the transformation correspending to the matrix to a vector.
+    // Note: the vector argument is a normal array, and not a Vector3D object. It also returns a normal array.
     transformVector(vector) {
         let result = new Array(this.m);
         result.fill(0);
@@ -211,6 +232,7 @@ class Matrix {
         return result;
     }
 
+    // Multiply two matrices
     multipliedBy(matrix) {
         let m = matrix.matrix.length;
         let n = this.matrix[0].length;
@@ -231,16 +253,23 @@ class Matrix {
     }
 }
 
+// Holds information about the viewport perspective and position relative to the coordinate system.
 class View {
     constructor(longitude = 0, latitude = 0, offset = new Vector3D(0, 0, 0), zoom = 100, projection="perspective") {
+        // Longitude angle
         this._longitude = longitude;
+        // Latitude angle
         this._latitude = latitude;
+        // Coordinates for center of rotation
         this.offset = offset;
+        // Zoom (for perspective mode this equates to distance from the center of rotation)
         this.zoom = zoom;
+        // Type of projection (either "perspective" or "orthogonal")
         this.projection = projection;
         this.updateMatrix();
     }
 
+    // Setters and getters because the view matrix needs to be updated when the rotation changes.
     set longitude(value) {
         this._longitude = value;
         this.updateMatrix();
@@ -257,7 +286,7 @@ class View {
         return this._latitude;
     }
 
-
+    // Updates the matrix which encodes the rotation.
     updateMatrix() {
         let lo = this._longitude / 180 * Math.PI;
         let la = this._latitude / 180 * Math.PI;
@@ -280,9 +309,8 @@ class View {
         this.matrix = longMatrix.multipliedBy(latMatrix);
     }
 
-
-
-
+    // Projects a vector onto a plane (orthogonally)
+    // NOTE: vectorInput is a normal array, and not a Vector3D object.
     projectVectorOrtho(vectorInput) {
         let vector = [vectorInput[0] - this.offset.x, vectorInput[1] - this.offset.y, vectorInput[2] - this.offset.z];
 
@@ -294,6 +322,8 @@ class View {
         return new Vector3D(x, y);
     }
 
+    // Project a vector onto a plane using perspective (like a pinhole camera)
+    // NOTE: vectorInput is a normal array, and not a Vector3D object.
     projectVector(vectorInput) {
         let vector = [vectorInput[0] - this.offset.x, vectorInput[1] - this.offset.y, vectorInput[2] - this.offset.z];
 
@@ -309,6 +339,8 @@ class View {
         return new Vector3D(x, y);
     }
 
+    // Cut a line such that only the section in front of the "camera" is rendered
+    // NOTE: lineStart and lineEnd are normal arrays, and not Vector3D objects.
     calculateClip(lineStart, lineEnd) {
         let vector1 = [lineStart[0] - this.offset.x, lineStart[1] - this.offset.y, lineStart[2] - this.offset.z];
         let vector2 = [lineEnd[0] - this.offset.x, lineEnd[1] - this.offset.y, lineEnd[2] - this.offset.z];
@@ -316,53 +348,48 @@ class View {
         let transformed1 = this.matrix.transformVector(vector1);
         let transformed2 = this.matrix.transformVector(vector2);
 
-        
-        // If there is something behind
-        if (transformed1[2] + this.zoom < 0 || transformed2[2] + this.zoom < 0) {
-            // If there is clipping
-            if (transformed1[2] + this.zoom < 0 !== transformed2[2] + this.zoom < 0) {
+        transformed1[2] += this.zoom;
+        transformed2[2] += this.zoom;
 
-                transformed1[2] += this.zoom;
-                transformed2[2] += this.zoom;
+        // If at least one of the points is behind the camera
+        if (transformed1[2] < 0 || transformed2[2] < 0) {
+            // If there is clipping (ONLY one point is behind the camera)
+            if (transformed1[2] < 0 !== transformed2[2] < 0) {
 
+                // Distance between the points in the direction parallel to the direction the camera is pointing
                 let dz = transformed2[2] - transformed1[2];
 
+                // Output points
                 let point1;
                 let point2;
 
-                // If first point is behind (I know this is not ideal)
+                // If the first point is behind the camera
                 if (transformed1[2] < 0) {
                     point1 = new Vector3D(...lineEnd);
-
                     let c = transformed2[2] / Math.abs(dz);
-
                     point2 = new Vector3D(lineEnd[0] - (lineEnd[0] - lineStart[0]) * c * 0.99, lineEnd[1] - (lineEnd[1] - lineStart[1]) * c * 0.99, lineEnd[2] - (lineEnd[2] - lineStart[2]) * c * 0.99);
 
-                // If second point is behind
+                // If the second point is behind the camera
                 } else {
                     point1 = new Vector3D(...lineStart);
-
                     let c = transformed1[2] / Math.abs(dz);
-
                     point2 = new Vector3D(lineStart[0] - (lineStart[0] - lineEnd[0]) * c * 0.99, lineStart[1] - (lineStart[1] - lineEnd[1]) * c * 0.99, lineStart[2] - (lineStart[2] - lineEnd[2]) * c * 0.99);
                 }
-                
-               
-                return [point1, point2];
 
+                return [point1, point2];
             }
             
+            // Entire line is behind the camera, no need to render.
             return null;
         }
 
         // No clipping
-        
         return [new Vector3D(...lineStart), new Vector3D(...lineEnd)];
         
     }
 }
 
-
+// Draw a line on the canvas, with Vector3D start and endpoints.
 function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
     let ctx = canvas.getContext("2d");
     let width = canvas.width;
@@ -371,31 +398,38 @@ function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
     
     ctx.lineWidth = lineStyle.width;
     ctx.strokeStyle = lineStyle.color;
+
+    // Start and end coordinates
     let start;
     let end;
 
+
     if (view.projection === "perspective") {
+        // Perspective projection
         clipped = view.calculateClip([lineStart.x, lineStart.y, lineStart.z], [lineEnd.x, lineEnd.y, lineEnd.z]);
         if (clipped == null) return;
         let point1 = clipped[0];
         let point2 = clipped[1];
-        
+
         start = view.projectVector([point1.x, point1.y, point1.z]);
         end = view.projectVector([point2.x, point2.y, point2.z]);
     
     } else {
+        // Orthogonal projection
         let point1 = lineStart;
         let point2 = lineEnd;
+
         start = view.projectVectorOrtho([point1.x, point1.y, point1.z]);
         end = view.projectVectorOrtho([point2.x, point2.y, point2.z]);
     }
 
+    // Center graph
     start.x += width * 0.5;
     start.y = height * 0.5 - start.y;
-
     end.x += width * 0.5;
     end.y = height * 0.5 - end.y;
     
+    // Draw
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
     ctx.lineTo(end.x, end.y);
@@ -405,18 +439,21 @@ function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
     
 }
 
-
+// 1px black
 var lineStyle = new LineStyle(1, "#000000");
 
+// Main canvas in the document.
 var mainCanvas = document.getElementById("maincanvas");
 
+
+// Draw the x, y (re) and z (im) axis lines as well as 1 numbers.
 function drawAxisLines(canvas, view) {
     let width = canvas.width;
     let height = canvas.height;
     
     let pixelRatio = window.devicePixelRatio;
 
-
+    // Draw lines 
     drawCanvas3d(canvas, new Vector3D(-20, 0, 0), new Vector3D(0, 0, 0), new LineStyle(1 * pixelRatio, "#00FF00"), view);
     drawCanvas3d(canvas, new Vector3D(20, 0, 0), new Vector3D(0, 0, 0), new LineStyle(2 * pixelRatio, "#00FF00"), view);
     drawCanvas3d(canvas, new Vector3D(0, -20, 0), new Vector3D(0, 0, 0), new LineStyle(1 * pixelRatio, "#FF0000"), view);
@@ -427,8 +464,12 @@ function drawAxisLines(canvas, view) {
     let ctx = canvas.getContext("2d");
     ctx.font = `${20 * pixelRatio}px Arial`;
 
-
+    
+    // Draw numbers
     if (view.projection === "perspective") {
+        // Perspective projection
+
+        // If statements check if the number is in front of the camera
         if (view.matrix.transformVector([1 - view.offset.x, -view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
             let xVector = view.projectVector([1, 0, 0]);
             ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);    
@@ -442,6 +483,7 @@ function drawAxisLines(canvas, view) {
             ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);    
         }
     } else {
+        // Orthogonal projection
         let xVector = view.projectVectorOrtho([1, 0, 0]);
         ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);    
         let yVector = view.projectVectorOrtho([0, 1, 0]);
@@ -451,7 +493,7 @@ function drawAxisLines(canvas, view) {
     }
 }
 
-
+// Draws all values for a function on the canvas
 function drawFunction(canvas, begin, end, step = 0.1, view) {
     let pixelRatio = window.devicePixelRatio;
 
@@ -467,23 +509,24 @@ function drawFunction(canvas, begin, end, step = 0.1, view) {
         drawCanvas3d(canvas, new Vector3D(begin, 0, 0), new Vector3D(begin, 0, lastValue[j].im), imStyle, view);
     }
     
+    // All values for the function are precalculated when the function updates, and stored in the resultList array.
     for (let i = 1; i <= (end - begin) / step; i++) {
         let x = i * step + begin
         
         //let result = func(new Complex(x, 0));
         let result = resultList[i];
 
-        // Each element in the result
+        // Each element in the result (for when there are several functions)
         for (let j = 0; j < result.length; j++) {
             // Function line
             drawCanvas3d(canvas, new Vector3D(x - step, lastValue[j].re, lastValue[j].im), new Vector3D(x, result[j].re, result[j].im), style, view);
             
             // Real component line
-            drawCanvas3d(canvas, new Vector3D(x, 0, 0), new Vector3D(x, result[j].re, 0), reStyle, view);
+            drawCanvas3d(canvas, new Vector3D(x, 0, 0), new Vector3D(x, result[j].re, 0), reStyle, view); // Vertical re lines
             drawCanvas3d(canvas, new Vector3D(x - step, lastValue[j].re, 0), new Vector3D(x, result[j].re, 0), reStyle, view);
     
             // Imaginary component line
-            drawCanvas3d(canvas, new Vector3D(x, 0, 0), new Vector3D(x, 0, result[j].im), imStyle, view);
+            drawCanvas3d(canvas, new Vector3D(x, 0, 0), new Vector3D(x, 0, result[j].im), imStyle, view); // Horizontal im lines
             drawCanvas3d(canvas, new Vector3D(x - step, 0, lastValue[j].im), new Vector3D(x, 0, result[j].im), imStyle, view);
         }
         
@@ -501,35 +544,36 @@ var zOffset = document.getElementById("z-offset");
 
 var view = new View(40, 30, new Vector3D(xOffset.value, yOffset.value, zOffset.value), 5);
 
+// Contains all the values for the result of the function(s)
 var resultList = [];
 
-
+// Updates the view and canvas when an offset is changed
 function updateView() {
     view.offset = new Vector3D(xOffset.value, yOffset.value, zOffset.value);
     updateCanvas();
 }
-
-//updateView();
-
 xOffset.oninput = updateView;
 yOffset.oninput = updateView;
 zOffset.oninput = updateView;
 
 
+// Updates the canvas and redraws the axis lines and function lines. Normally called when the view is changed.
 function updateCanvas() {    
     mainCanvas.getContext("2d").clearRect(0, 0, mainCanvas.width, mainCanvas.height);
     
+    // Start and end of the function
     let minX = document.getElementById("minX").value;
     let maxX = document.getElementById("maxX").value;
+
     let resolution = Math.abs(document.getElementById("resolution").value);
-    if (!resolution) resolution = 0.05;
+    if (resolution === 0) resolution = 0.05; // Resolution cannot be 0, leads to ZeroDivisionError
 
     drawAxisLines(mainCanvas, view);
-
     drawFunction(mainCanvas, Math.min(minX, maxX), Math.max(minX, maxX), resolution, view);
 
 }
 
+// Updates the values in resultList by calling func for each value of x.
 function updateFunctionValues(func) {
     let begin = Number(document.getElementById("minX").value);
     let end = Number(document.getElementById("maxX").value);
@@ -544,10 +588,8 @@ function updateFunctionValues(func) {
     }
 }
 
-
-
-
-
+// The available operations.
+// The keys are the names the user enters in the function window, while function is the corresponding function in the Complex class.
 let operations = {
     "+": {args: 2, function: "add"},
     "-": {args: 2, function: "subtract"},
@@ -561,7 +603,7 @@ let operations = {
     "tan": {args: 1, function: "tan"}
 };
 
-
+// List of all variables, with e and pi as default.
 let variableList = [
     {
         name: "pi",
@@ -576,6 +618,8 @@ let variableList = [
 
 ];
 
+// Gets the index of a variable in variableList.
+// Returns -1 if it doesn't exist.
 function getVariableIndex(name) {
     for (let i = 0; i < variableList.length; i++) {
         if (variableList[i].name === name) return i;
@@ -583,15 +627,20 @@ function getVariableIndex(name) {
     return -1;
 }
 
-// Parse a complex number string e.g. "4 - 3i" and return Complex value.
+// Parse a complex number string e.g. "4 - 3i" and return Complex object.
 function parseNumber(num) {
+    // Replace commas with periods
     num = num.replace(/,/g, ".");
+    // Remove whitespaces
     num = num.replace(/\s/g, "");
+
     let numbers = [];
 
     let signs = "+-"
 
     let beginning = 0;
+
+    // Split string into sections separated by plusses or minuses and store in numbers array.
     for (let i = 1; i < num.length; i++) {
         if (signs.includes(num[i])) {
             numbers.push(num.substring(beginning, i));
@@ -600,15 +649,18 @@ function parseNumber(num) {
     }
     numbers.push(num.substring(beginning, num.length));
 
+    
     let out = new Complex();
     
     for (let i = 0; i < numbers.length; i++) {
         let number = numbers[i];
+
+        // If last character in section is an i, I, j or J, meaning it is the imaginary part
         if ("iIjJ".includes(number[number.length - 1])) {
             // Imaginary
             let strNum = number.substring(0, number.length - 1);
 
-            // If imaginary part has no number, assume it is one.
+            // If imaginary part has no number, assume it is one. (i.e. "3 - i")
             if (strNum.length <= 1 && "+-".includes(strNum)) {
                 if (strNum[0] === "-") {
                     out.im--;
@@ -619,7 +671,7 @@ function parseNumber(num) {
                 out.im += Number(strNum);
             }
         } else {
-            // Real
+            // Real part
             out.re += Number(number);
         }
     }
@@ -630,39 +682,45 @@ function parseNumber(num) {
 let functionText = "";
 
 
+// Updates the function values and the canvas, and is normally called when the user clicks the "set function" button.
 function updateFunction() {
     functionText = document.getElementById("function").value;
     updateFunctionValues(userFunction);
     updateCanvas();
 }
 
-
+// Interprets the function the user has entered and runs it.
 function userFunction(num) {
 
-    let localVars = {};
+    // Variables assigned using equals symbol, calculated by the function (e.g. =var1)
+    let calculatedVars = {};
 
+    // Split into lines and store in functionList
     let functionList = functionText.split("\n").filter(line => line.trim() !== "");
 
+    // Stack of all the values the function has calculated.
+    // Read more here: https://en.wikipedia.org/wiki/Reverse_Polish_notation
     let functionStack = [];
     
+    // For each line in the function
     for (let i = 0; i < functionList.length; i++) {
         let line = functionList[i].trim();
 
-        // Check if variable is x
+        // Check if line is x
         if (line === "x") {
             functionStack.push(num);
-
-        // Check if line should be interpreted
+        // Check if line should be interpreted or if it is commented out or empty
         } else if (line !== "" && line [0] !== "#") {
             let variableIndex = getVariableIndex(line);
-            let isLocalVariable = Object.keys(localVars).includes(line);
+            let isCalculatedVariable = Object.keys(calculatedVars).includes(line);
             
-            // Store variable
+
             if (line[0] === "=") {
-                localVars[line.substring(1).trim()] = functionStack.pop();
+                // Store last element in the stack as a variable
+                calculatedVars[line.substring(1).trim()] = functionStack.pop();
 
             } else if (operations.hasOwnProperty(line)) {
-                // Operation
+                // Line is an operation
                 let operation = operations[line];
                 let values = functionStack.slice(functionStack.length - operation.args);
                 let value = Complex[operation.function].apply(this, values);
@@ -670,13 +728,14 @@ function userFunction(num) {
                 functionStack.push(value);
                 
             } else if (variableIndex !== -1) {
-                // User variable
+                // Line is a user defined variable
                 functionStack.push(variableList[variableIndex].value);
             
-            } else if (isLocalVariable) {
-                functionStack.push(localVars[line.trim()]);
+            } else if (isCalculatedVariable) {
+                // Line is a calculated variable
+                functionStack.push(calculatedVars[line.trim()]);
             } else {
-                // Constant
+                // Line is a number/constant
                 functionStack.push(parseNumber(line));
             }
         }    
@@ -684,9 +743,11 @@ function userFunction(num) {
     return functionStack;
 }
 
+
 let addVarElementBtn = document.getElementById("addVariableElement");
 
-
+// Adds a new variable to variableList and updates the HTML document.
+// Normally called when the user presses the "add variable" button.
 function addVariableElement() {
     variableList.push({
         name: "",
@@ -701,7 +762,8 @@ function addVariableElement() {
     variableListToHTML();
 }
 
-
+// Updates the list of variables based on the values in the HTML document.
+// Normally called when the user changes any of the variables.
 function updateVariableList(event) {
 
     let element = event.target;
@@ -710,6 +772,7 @@ function updateVariableList(event) {
 
     let index = Array.prototype.slice.call(parent.parentElement.children).indexOf(parent);
 
+    // Type of the variable (e.g. constant, range or time)
     let type = parent.children[1].value;
 
     variableList[index].type = type;
@@ -724,8 +787,9 @@ function updateVariableList(event) {
             variableList[index].value = new Complex((parent.children[3].value - parent.children[2].value) * parent.children[4].value * 0.005 + Number(parent.children[2].value));
             variableList[index].min = parent.children[2].value;
             variableList[index].max = parent.children[3].value;
-
             break;
+
+        // Time is not implemented yet.
         case "time":
             variableList[index].value = element.value;
             break;
@@ -734,7 +798,7 @@ function updateVariableList(event) {
     variableListToHTML();
 }
 
-
+// Updates variableList and the HTML document when the user changes the type of the variable.
 function updateVariableType(event) {
 
     let element = event.target;
@@ -768,10 +832,12 @@ function deleteVariable(event) {
     
 }
 
-
+// Turns the list of variables into HTML
 function variableListToHTML() {
     let variableElement = document.getElementById("variable-list");
     variableElement.innerHTML = "";
+
+    // For each variable
     for (let i = 0; i < variableList.length; i++) {
 
         let htmlVariableElement = variableElement.appendChild(document.createElement("li"));
@@ -807,12 +873,14 @@ function variableListToHTML() {
                 <input class="updateVariables" type="range" min="0" max="200" value="${200 * ((variableList[i].value.re - variableList[i].min) / (variableList[i].max - variableList[i].min))}">
                 <span>${value}</span>`
                 break;
+            
+            // Time mode is not implemented yet
             case "time":
                 html += `
                 Min: <input class="updateVariables" type="number" value="${variableList[i].min}">
                 Max: <input class="updateVariables" type="number" value="${variableList[i].max}">
-                Step: <input class="updateVariables" type="number" value="${variableList[i].step}">
-                `
+                Step: <input class="updateVariables" type="number" value="${variableList[i].step}">`
+                break;
 
         }
         html += `<p class="button" onclick="deleteVariable(event)">Delete</p>`
@@ -822,22 +890,26 @@ function variableListToHTML() {
         htmlVariableElement.innerHTML = html;
     }
 
+    // For each HTML element with class "updateVariables"
     [].forEach.call(document.getElementsByClassName("updateVariables"), function (element) {
         
         if (element.type === "range") {
+            // Update when the user moves a slider
             element.oninput = function(event) {
-
                 let element = event.target;
 
                 let parent = element.parentElement;
 
                 let index = Array.prototype.slice.call(parent.parentElement.children).indexOf(parent);
+
+                // Read slider value
                 let value = (parent.children[3].value - parent.children[2].value) * parent.children[4].value * 0.005 + Number(parent.children[2].value);
             
                 variableList[index].value = new Complex(value);
                 variableList[index].min = parent.children[2].value;
                 variableList[index].max = parent.children[3].value;
                 
+                // Round slightly
                 parent.children[5].innerHTML = Number((value + 1E-15).toFixed(13));
                 updateFunctionValues(userFunction);
                 updateCanvas();
@@ -848,26 +920,24 @@ function variableListToHTML() {
             updateVariableList(event);
         });
     });
+
+    // For the type dropdown element in each variable
     [].forEach.call(document.getElementsByClassName("updateVariableType"), function (element) {
         element.addEventListener("change", (event) => {
             updateVariableType(event);
         });
-
-        updateFunctionValues(userFunction);
-        updateCanvas();
     });
     updateFunctionValues(userFunction);
+    updateCanvas();
 }
 
 
-
+// "Add variable" button
 addVarElementBtn.addEventListener("click", addVariableElement);
 
-
-
-
+// When the user scrolls/zooms over the graph
 mainCanvas.addEventListener("wheel", function(event) {
-    event.preventDefault();    
+    event.preventDefault(); // Prevent scrolling
     view.zoom = Math.pow(10, Math.log10(view.zoom) + event.deltaY * 0.001);
     updateCanvas();
     
@@ -878,60 +948,75 @@ mainCanvas.addEventListener("wheel", function(event) {
 mainCanvas.addEventListener("mousedown", rotateGraph);
 mainCanvas.addEventListener("touchstart", rotateGraph);
 
-var originalX;
-var originalY;
-var originalDistance;
 
+
+
+
+// Used to change the view when the user drags thew cursor/finger over the graph.
+// Normally called when the user clicks/touches the graph window.
 function rotateGraph(event) {
+    let originalX;
+    let originalY;
+    let originalDistance; // Distance between touch points
 
     let originalLongitude;
     let originalLatitude;
 
+    // If user has clicked
     if (event.offsetX) {
         originalX = event.offsetX;
-        originalY = event.offsetY;  
+        originalY = event.offsetY;
     } else {
+        // User has touched
+        
+        if (event.touches.length > 2) return; // Ignore 3 or more touches
+
         event.preventDefault();
         if (event.touches.length === 1) {
+            // User only touches at one point
             originalX = event.touches[0].pageX;
             originalY = event.touches[0].pageY;
         } else {
+            // User touches at several points
             var originalZoom = view.zoom;
             originalX = (event.touches[0].pageX + event.touches[1].pageX) * 0.5;
             originalY = (event.touches[0].pageY + event.touches[1].pageY) * 0.5;
             originalDistance = Math.sqrt(Math.pow(event.touches[0].pageX - event.touches[1].pageX, 2) + Math.pow(event.touches[0].pageY - event.touches[1].pageY, 2));
-
         }
     }
+
     originalLatitude = view.latitude;
     originalLongitude = view.longitude;
 
+    // User moves the mouse cursoe
     function mousemove(event) {
         view.longitude = originalLongitude - (event.offsetX - originalX) * 0.5;
         view.latitude = originalLatitude + (event.offsetY - originalY) * 0.5;
         updateCanvas();
     }
 
+    // User moves one touch point
     function touchmove(event) {
+        let x;
+        let y;
         if (event.touches.length === 1) {
-            var x = event.touches[0].pageX;
-            var y = event.touches[0].pageY;    
+            x = event.touches[0].pageX;
+            y = event.touches[0].pageY;    
         } else {
-            var x = (event.touches[0].pageX + event.touches[1].pageX) * 0.5;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) * 0.5;
+            x = (event.touches[0].pageX + event.touches[1].pageX) * 0.5;
+            y = (event.touches[0].pageY + event.touches[1].pageY) * 0.5;
 
+            // Zoom based on the distance between the two touch points
             let distance = Math.sqrt(Math.pow(event.touches[0].pageX - event.touches[1].pageX, 2) + Math.pow(event.touches[0].pageY - event.touches[1].pageY, 2));
             view.zoom = originalZoom * (originalDistance / distance);
         }
 
-
-
         view.longitude = originalLongitude - (x - originalX) * 0.5;
         view.latitude = originalLatitude + (y - originalY) * 0.5;
-        
+
         updateCanvas();
     }
-
+    
     mainCanvas.addEventListener("mousemove", mousemove);
     mainCanvas.addEventListener("mouseup", function() {
         mainCanvas.removeEventListener("mousemove", mousemove);
@@ -940,23 +1025,25 @@ function rotateGraph(event) {
     mainCanvas.addEventListener("touchmove", touchmove);
     mainCanvas.addEventListener("touchend", function(event) {
         if (event.touches.length === 0) {
+            // Remove event listener when user releases all touch points
             mainCanvas.removeEventListener("touchmove", touchmove);
-        } else {
+        } else if (event.touches.length === 1) {
+            // Reset original values when there is only 1 touch point left.
             originalX = event.touches[0].pageX;
             originalY = event.touches[0].pageY;
             
             originalLatitude = view.latitude;
             originalLongitude = view.longitude;
         }
-    })
-   
-
+    });
 }
 
 function isFullscreen() {
     return document.fullscreenElement !== null;
 }
 
+// Changes the size of the canvas element.
+// Normally called when the window is resized.
 function resize() {
     let pixelRatio = window.devicePixelRatio;
 
@@ -978,17 +1065,20 @@ function resize() {
     updateCanvas();
 }
 
+// Makes the canvas fullscreen
 function fullscreen() {
     let pixelRatio = window.devicePixelRatio;
+
+    // Temporarily remove the resize event listener
     window.removeEventListener("resize", resize);
 
     if (mainCanvas.requestFullscreen) {
         mainCanvas.requestFullscreen();
-    } else if (mainCanvas.mozRequestFullScreen) { /* Firefox */
+    } else if (mainCanvas.mozRequestFullScreen) { // Firefox
         mainCanvas.mozRequestFullScreen();
-    } else if (mainCanvas.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+    } else if (mainCanvas.webkitRequestFullscreen) { // Chrome, Safari & Opera
         mainCanvas.webkitRequestFullscreen();
-    } else if (mainCanvas.msRequestFullscreen) { /* IE/Edge */
+    } else if (mainCanvas.msRequestFullscreen) { // IE/Edge
         mainCanvas.msRequestFullscreen();
     }
 
@@ -1001,6 +1091,7 @@ function fullscreen() {
     window.addEventListener("resize", resize);
 }
 
+// Projection dropdown event listener
 document.getElementById("projection").addEventListener("change", function(event) {
     let type = event.target.value;
     view.projection = type;
@@ -1009,6 +1100,8 @@ document.getElementById("projection").addEventListener("change", function(event)
 
 window.addEventListener("resize", resize);
 
+// Show default variables (e and pi)
 variableListToHTML();
 
+// Initial sizing
 resize();
