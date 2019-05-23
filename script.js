@@ -627,55 +627,14 @@ function getVariableIndex(name) {
     return -1;
 }
 
-// Parse a complex number string e.g. "4 - 3i" and return Complex object.
+// Parse a complex number string e.g. "4" or "3i" and return a Complex object.
 function parseNumber(num) {
-    // Replace commas with periods
-    num = num.replace(/,/g, ".");
-    // Remove whitespaces
-    num = num.replace(/\s/g, "");
-
-    let numbers = [];
-
-    let signs = "+-"
-
-    let beginning = 0;
-
-    // Split string into sections separated by plusses or minuses and store in numbers array.
-    for (let i = 1; i < num.length; i++) {
-        if (signs.includes(num[i])) {
-            numbers.push(num.substring(beginning, i));
-            beginning = i;
-        }
+    if (num[num.length - 1] !== "i") {
+        return new Complex(num);
+    } else {
+        if (num === "i") num = "1i";
+        return new Complex(0, num.substring(0, num.length - 1));
     }
-    numbers.push(num.substring(beginning, num.length));
-
-    
-    let out = new Complex();
-    
-    for (let i = 0; i < numbers.length; i++) {
-        let number = numbers[i];
-
-        // If last character in section is an i, I, j or J, meaning it is the imaginary part
-        if ("iIjJ".includes(number[number.length - 1])) {
-            // Imaginary
-            let strNum = number.substring(0, number.length - 1);
-
-            // If imaginary part has no number, assume it is one. (i.e. "3 - i")
-            if (strNum.length <= 1 && "+-".includes(strNum)) {
-                if (strNum[0] === "-") {
-                    out.im--;
-                } else {
-                    out.im++;
-                }
-            } else {
-                out.im += Number(strNum);
-            }
-        } else {
-            // Real part
-            out.re += Number(number);
-        }
-    }
-    return out;
 }
 
 
