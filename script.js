@@ -695,8 +695,17 @@ function userFunction(num) {
     // Variables assigned using equals symbol, calculated by the function (e.g. =var1)
     let calculatedVars = {};
 
-    // Split into lines and store in functionList
-    let functionList = functionText.split("\n").filter(line => line.trim() !== "");
+
+    let functionList = [];
+
+
+    let lines = functionText.split("\n").filter(line => line.trim() !== "");
+    lines.forEach((line) => {
+        parseExpression(line).forEach((token) => {
+            functionList.push(token);
+        });
+    });
+    
 
     // Stack of all the values the function has calculated.
     // Read more here: https://en.wikipedia.org/wiki/Reverse_Polish_notation
@@ -1098,10 +1107,13 @@ document.getElementById("projection").addEventListener("change", function(event)
     updateCanvas();
 });
 
-window.addEventListener("resize", resize);
+window.onload = () => {
+    window.addEventListener("resize", resize);
 
-// Show default variables (e and pi)
-variableListToHTML();
+    // Show default variables (e and pi)
+    variableListToHTML();
 
-// Initial sizing
-resize();
+    // Initial sizing
+    resize();
+}
+
