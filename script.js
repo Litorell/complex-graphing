@@ -913,13 +913,6 @@ mainCanvas.addEventListener("wheel", function(event) {
 
 
 
-mainCanvas.addEventListener("mousedown", rotateGraph);
-mainCanvas.addEventListener("touchstart", rotateGraph);
-
-
-
-
-
 // Used to change the view when the user drags thew cursor/finger over the graph.
 // Normally called when the user clicks/touches the graph window.
 function rotateGraph(event) {
@@ -927,6 +920,14 @@ function rotateGraph(event) {
     let originalY;
     let originalDistance; // Distance between touch points
 
+    let unit = view.calculateClip(origin, unitX);
+
+    let origin = unit[0];
+    let end = unit[1];
+    let angleUnit = Math.atan2(end.y - start.y, end.x - start.x);
+
+    let 
+    
     let originalLongitude;
     let originalLatitude;
 
@@ -1005,6 +1006,9 @@ function rotateGraph(event) {
         }
     });
 }
+
+mainCanvas.addEventListener("mousedown", rotateGraph);
+mainCanvas.addEventListener("touchstart", rotateGraph);
 
 function isFullscreen() {
     return document.fullscreenElement !== null;
