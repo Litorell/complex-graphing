@@ -12,8 +12,19 @@ class Complex {
     }
 
     // Prints nicely
-    print() {
-        return `${this.re} + ${this.im}i`;
+    print(decimals=null) {
+        let re;
+        let im;
+        if (decimals !== null) {
+            let multiplier = Math.pow(10, decimals);
+            re = Math.round(this.re * multiplier) / multiplier;
+            im = Math.round(this.im * multiplier) / multiplier;
+        } else {
+            re = this.re;
+            im = this.im;
+        }
+
+        return `${re} ${(im >= 0) ? "+" : "-"} ${Math.abs(im)}i`;
     }
 
     // From polar coordinates
@@ -189,6 +200,10 @@ class Vector3D {
 	subtracted(vector) {
         return new Vector3D(this.x - vector.x, this.y - vector.y, this.z - vector.z);
     }
+
+    toArray() {
+        return [this.x, this.y, this.z];
+    }
 }
 
 // Matrix class, also supports matrix multiplication.
@@ -216,6 +231,21 @@ class Matrix {
     // Width of the matrix
     get n() {
         return this.matrix[0].length;
+    }
+
+    get transpose() {
+        let n = this.m;
+        let m = this.n
+
+        let newMatrix = [];
+
+        for (let y = 0; y < m; y++) {
+            newMatrix.push([]);
+            for (let x = 0; x < n; x++) {
+                newMatrix[y].push(this.matrix[x][y]);
+            }
+        }
+        return new Matrix(newMatrix);
     }
 
     // Applies the transformation correspending to the matrix to a vector.
@@ -256,9 +286,9 @@ class Matrix {
 // Holds information about the viewport perspective and position relative to the coordinate system.
 class View {
     constructor(longitude = 0, latitude = 0, offset = new Vector3D(0, 0, 0), zoom = 100, projection="perspective") {
-        // Longitude angle
+        // Longitude angle (degrees)
         this._longitude = longitude;
-        // Latitude angle
+        // Latitude angle (degrees)
         this._latitude = latitude;
         // Coordinates for center of rotation
         this.offset = offset;
@@ -286,6 +316,13 @@ class View {
         return this._latitude;
     }
 
+    snap() {
+        this._latitude = Math.round((this.latitude / 45)) * 45;
+        this._longitude = Math.round((this.longitude / 45)) * 45;
+        this.updateMatrix();
+        updateCanvas();
+    }
+
     // Updates the matrix which encodes the rotation.
     updateMatrix() {
         let lo = this._longitude / 180 * Math.PI;
@@ -309,6 +346,50 @@ class View {
         this.matrix = longMatrix.multipliedBy(latMatrix);
     }
 
+    getProjectedVector(point, distance=null) {
+        if (distance === null) distance = this.zoom;
+
+        if (this.projection === "perspective") {
+            let fovCoeff = Math.max(mainCanvas.width, mainCanvas.height) * 0.8;
+
+            point[0] *= distance / fovCoeff;
+            point[1] *= distance / fovCoeff;
+        } else {
+            point[0] *= this.zoom / 600;
+            point[1] *= this.zoom / 600;
+        }
+        distance -= this.zoom;
+
+        let projectedVector = this.matrix.transpose.transformVector([point[0], point[1], distance]);
+        projectedVector[0] += this.offset.x;
+        projectedVector[1] += this.offset.y;
+        projectedVector[2] += this.offset.z;
+
+        return projectedVector;
+
+    }
+
+    projectVector(vectorInput) {
+        return (this.projection === "perspective") ? this.projectVectorPerspective(vectorInput) : this.projectVectorOrtho(vectorInput);
+    }
+
+    // Project a vector onto a plane using perspective (like a pinhole camera)
+    // NOTE: vectorInput is a normal array, and not a Vector3D object.
+    projectVectorPerspective(vectorInput) {
+        let vector = [vectorInput[0] - this.offset.x, vectorInput[1] - this.offset.y, vectorInput[2] - this.offset.z];
+
+        let transformed = this.matrix.transformVector(vector);
+        
+        let fovCoeff = Math.max(mainCanvas.width, mainCanvas.height) * 0.8;
+        
+        transformed[2] += this.zoom;
+
+        let x = transformed[0] / transformed[2] * fovCoeff;
+        let y = transformed[1] / transformed[2] * fovCoeff;
+        
+        return new Vector3D(x, y);
+    }
+
     // Projects a vector onto a plane (orthogonally)
     // NOTE: vectorInput is a normal array, and not a Vector3D object.
     projectVectorOrtho(vectorInput) {
@@ -318,23 +399,6 @@ class View {
 
         let x = transformed[0] / this.zoom * 600;
         let y = transformed[1] / this.zoom * 600;
-        
-        return new Vector3D(x, y);
-    }
-
-    // Project a vector onto a plane using perspective (like a pinhole camera)
-    // NOTE: vectorInput is a normal array, and not a Vector3D object.
-    projectVector(vectorInput) {
-        let vector = [vectorInput[0] - this.offset.x, vectorInput[1] - this.offset.y, vectorInput[2] - this.offset.z];
-
-        let transformed = this.matrix.transformVector(vector);
-        
-        let fovCoeff = Math.max(mainCanvas.width, mainCanvas.height) * 0.5;
-        
-        transformed[2] += this.zoom;
-
-        let x = transformed[0] / transformed[2] * fovCoeff;
-        let y = transformed[1] / transformed[2] * fovCoeff;
         
         return new Vector3D(x, y);
     }
@@ -399,29 +463,26 @@ function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
     ctx.lineWidth = lineStyle.width;
     ctx.strokeStyle = lineStyle.color;
 
-    // Start and end coordinates
-    let start;
-    let end;
+    let point1;
+    let point2;
 
 
     if (view.projection === "perspective") {
         // Perspective projection
         clipped = view.calculateClip([lineStart.x, lineStart.y, lineStart.z], [lineEnd.x, lineEnd.y, lineEnd.z]);
         if (clipped == null) return;
-        let point1 = clipped[0];
-        let point2 = clipped[1];
-
-        start = view.projectVector([point1.x, point1.y, point1.z]);
-        end = view.projectVector([point2.x, point2.y, point2.z]);
+        point1 = clipped[0];
+        point2 = clipped[1];
     
     } else {
         // Orthogonal projection
-        let point1 = lineStart;
-        let point2 = lineEnd;
-
-        start = view.projectVectorOrtho([point1.x, point1.y, point1.z]);
-        end = view.projectVectorOrtho([point2.x, point2.y, point2.z]);
+        point1 = lineStart;
+        point2 = lineEnd;
     }
+
+    // Start and end coordinates
+    let start = view.projectVector([point1.x, point1.y, point1.z]);
+    let end = view.projectVector([point2.x, point2.y, point2.z]);
 
     // Center graph
     start.x += width * 0.5;
@@ -448,10 +509,10 @@ var mainCanvas = document.getElementById("maincanvas");
 
 // Draw the x, y (re) and z (im) axis lines as well as 1 numbers.
 function drawAxisLines(canvas, view) {
+    let pixelRatio = window.devicePixelRatio;
+    
     let width = canvas.width;
     let height = canvas.height;
-    
-    let pixelRatio = window.devicePixelRatio;
 
     // Draw lines 
     drawCanvas3d(canvas, new Vector3D(-20, 0, 0), new Vector3D(0, 0, 0), new LineStyle(1 * pixelRatio, "#00FF00"), view);
@@ -462,35 +523,27 @@ function drawAxisLines(canvas, view) {
     drawCanvas3d(canvas, new Vector3D(0, 0, 20), new Vector3D(0, 0, 0), new LineStyle(2 * pixelRatio, "#0000FF"), view);
 
     let ctx = canvas.getContext("2d");
-    ctx.font = `${20 * pixelRatio}px Arial`;
+    ctx.font = `${20 * pixelRatio}px sans-serif`;
 
-    
+    let xVector;
+    let yVector;
+    let zVector;
+
     // Draw numbers
-    if (view.projection === "perspective") {
-        // Perspective projection
-
-        // If statements check if the number is in front of the camera
-        if (view.matrix.transformVector([1 - view.offset.x, -view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
-            let xVector = view.projectVector([1, 0, 0]);
-            ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);    
-        }
-        if (view.matrix.transformVector([-view.offset.x, 1 - view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
-            let yVector = view.projectVector([0, 1, 0]);
-            ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);    
-        }
-        if (view.matrix.transformVector([-view.offset.x, -view.offset.y, 1 - view.offset.z])[2] + view.zoom > 0) {
-            let zVector = view.projectVector([0, 0, 1]);
-            ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);    
-        }
-    } else {
-        // Orthogonal projection
-        let xVector = view.projectVectorOrtho([1, 0, 0]);
-        ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);    
-        let yVector = view.projectVectorOrtho([0, 1, 0]);
-        ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);    
-        let zVector = view.projectVectorOrtho([0, 0, 1]);
+    // If statements check if the number is in front of the camera
+    if (view.projection === "orthogonal" || view.matrix.transformVector([1 - view.offset.x, -view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
+        xVector = view.projectVector([1, 0, 0]);
+        ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);
+    }
+    if (view.projection === "orthogonal" || view.matrix.transformVector([-view.offset.x, 1 - view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
+        yVector = view.projectVector([0, 1, 0]);
+        ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);
+    }
+    if (view.projection === "orthogonal" || view.matrix.transformVector([-view.offset.x, -view.offset.y, 1 - view.offset.z])[2] + view.zoom > 0) {
+        zVector = view.projectVector([0, 0, 1]);
         ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);
     }
+
 }
 
 // Draws all values for a function on the canvas
@@ -534,6 +587,52 @@ function drawFunction(canvas, begin, end, step = 0.1, view) {
     }
 }
 
+function drawLabel(canvas, view) {
+    let pixelRatio = window.devicePixelRatio;
+    
+    let width = canvas.width;
+    let height = canvas.height;
+
+    let ctx = canvas.getContext("2d");
+    ctx.font = `${20 * pixelRatio}px sans-serif`;
+    
+    if (functionText.length > 0) {
+        userFunction(tracingPoint).forEach((tracingResult) => {
+            if (tracingResult.constructor !== Complex) tracingResult = new Complex(tracingResult);
+
+            if (view.projection === "orthogonal" || view.matrix.transformVector([tracingPoint, tracingResult.re, tracingResult.im])[2] + view.zoom > 0) {
+                let tracing = view.projectVector([tracingPoint, tracingResult.re, tracingResult.im]);
+
+                originalFill = ctx.fillStyle;
+
+                ctx.fillStyle = "#000000B0";
+
+                let pointX =  tracing.x + width  * 0.5;
+                let pointY = -tracing.y + height * 0.5;
+
+                let line1 = `x = ${Math.round(tracingPoint * 100) / 100}`;
+                let line2 = `z = ${tracingResult.print(2)}`;
+
+                ctx.fillRect(pointX + 10 * pixelRatio, pointY - 20 * pixelRatio, (15 + Math.max(line1.length, line2.length) * 8.5) * pixelRatio, 40 * pixelRatio);
+                ctx.beginPath();
+                ctx.moveTo(pointX, pointY);
+                ctx.lineTo(pointX + 10, pointY - 5);
+                ctx.lineTo(pointX + 10, pointY + 5)
+                ctx.closePath();
+
+                ctx.fill();
+
+                ctx.font = `${16 * pixelRatio}px monospace`;
+
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillText(line1, pointX + 15 * pixelRatio, pointY -  4 * pixelRatio);
+                ctx.fillText(line2, pointX + 15 * pixelRatio, pointY + 14 * pixelRatio);
+                ctx.fillStyle = originalFill;
+            }
+        });
+    }
+}
+
 
 
 
@@ -570,6 +669,7 @@ function updateCanvas() {
 
     drawAxisLines(mainCanvas, view);
     drawFunction(mainCanvas, Math.min(minX, maxX), Math.max(minX, maxX), resolution, view);
+    drawLabel(mainCanvas, view);
 
 }
 
@@ -786,7 +886,7 @@ var variableTypes = [
     "constant",
     "range",
     "time"
-]
+];
 
 
 function deleteVariable(event) {
@@ -911,6 +1011,45 @@ mainCanvas.addEventListener("wheel", function(event) {
     
 });
 
+let tracingPoint = 0;
+
+function setTracingPoint(clickX, clickY, canvas) {
+
+
+    let width = canvas.width;
+    let height = canvas.height;
+
+    clickX -= width * 0.5 / devicePixelRatio;
+    clickY -= height * 0.5 / devicePixelRatio;
+
+    clickY *= -1;
+
+    let unit;
+    if (view.projection === "perspective") {
+        unit = view.calculateClip([0, 0, 0], [1, 0, 0]);
+    } else {
+        unit = [new Vector3D(0, 0, 0), new Vector3D(1, 0, 0)];
+    }
+
+    let origin = view.projectVector(unit[0].toArray());
+    let end = view.projectVector(unit[1].toArray());
+    let angleUnit = Math.atan2(end.y - origin.y, end.x - origin.x);
+    let distanceUnit = Math.sqrt(Math.pow(end.y - origin.y, 2) + Math.pow(end.x - origin.x, 2));
+
+    let angleClick = Math.atan2(clickY - origin.y, clickX - origin.x);
+    let distanceClick = Math.sqrt(Math.pow(clickY - origin.y, 2) + Math.pow(clickX - origin.x, 2));
+
+    tracingPoint = distanceClick / distanceUnit * Math.cos(angleClick - angleUnit);
+    updateCanvas();
+
+    document.getElementById("trace-x").value = Math.round(tracingPoint * 100) / 100;
+}
+
+document.getElementById("trace-x").addEventListener("change", (event) => {
+    tracingPoint = Number(event.target.value);
+    updateCanvas();
+});
+
 
 
 // Used to change the view when the user drags thew cursor/finger over the graph.
@@ -920,14 +1059,6 @@ function rotateGraph(event) {
     let originalY;
     let originalDistance; // Distance between touch points
 
-    let unit = view.calculateClip(origin, unitX);
-
-    let origin = unit[0];
-    let end = unit[1];
-    let angleUnit = Math.atan2(end.y - start.y, end.x - start.x);
-
-    let 
-    
     let originalLongitude;
     let originalLatitude;
 
@@ -953,6 +1084,7 @@ function rotateGraph(event) {
             originalDistance = Math.sqrt(Math.pow(event.touches[0].pageX - event.touches[1].pageX, 2) + Math.pow(event.touches[0].pageY - event.touches[1].pageY, 2));
         }
     }
+   
 
     originalLatitude = view.latitude;
     originalLongitude = view.longitude;
@@ -1007,7 +1139,73 @@ function rotateGraph(event) {
     });
 }
 
-mainCanvas.addEventListener("mousedown", rotateGraph);
+function moveGraph(event) {
+    
+    let width = mainCanvas.width;
+    let height = mainCanvas.height;
+    
+    let originalX = event.offsetX * devicePixelRatio;
+    let originalY = event.offsetY * devicePixelRatio;
+
+    originalX -= width * 0.5;
+    originalY -= height * 0.5;
+    originalY *= -1;
+
+    let originalOffset = new Vector3D(xOffset, yOffset, zOffset);
+
+    let projectedOriginal = view.getProjectedVector([originalX, originalY]);
+    
+
+    function ctrlMove(event) {
+        let x = event.offsetX * devicePixelRatio;
+        let y = event.offsetY * devicePixelRatio;
+
+
+        x -= width * 0.5;
+        y -= height * 0.5;
+        y *= -1;
+        
+        let projected = view.getProjectedVector([x, y]);
+        projected[0] -= projectedOriginal[0];
+        projected[1] -= projectedOriginal[1];
+        projected[2] -= projectedOriginal[2];
+        
+
+        xOffset.value -= projected[0];
+        yOffset.value -= projected[1];
+        zOffset.value -= projected[2];
+        
+        updateView();
+    }
+
+    mainCanvas.addEventListener("mousemove", ctrlMove);
+    mainCanvas.addEventListener("mouseup", () => {
+        mainCanvas.removeEventListener("mousemove", ctrlMove);
+    });
+    
+}
+
+mainCanvas.addEventListener("mousedown", (event) => {
+
+    if (event.getModifierState("Shift")) {
+        function shiftMove(event) {
+            setTracingPoint(event.offsetX, event.offsetY, mainCanvas);
+        }
+
+        mainCanvas.addEventListener("mousemove", shiftMove);
+        mainCanvas.addEventListener("mouseup", () => {
+            mainCanvas.removeEventListener("mousemove", shiftMove);
+        });
+    } else if (event.ctrlKey) {
+        rotateGraph(event);
+        
+    } else {
+        moveGraph(event);
+    }
+});
+
+
+
 mainCanvas.addEventListener("touchstart", rotateGraph);
 
 function isFullscreen() {
@@ -1070,13 +1268,21 @@ document.getElementById("projection").addEventListener("change", function(event)
     updateCanvas();
 });
 
+document.addEventListener("keydown", (event) => {
+    if (event.code === "KeyQ" && event.ctrlKey) {
+        view.snap();
+    }
+});
+
 window.onload = () => {
     window.addEventListener("resize", resize);
 
     // Show default variables (e and pi)
     variableListToHTML();
 
-    // Initial sizing
+    // Initial sizing. Called twice because the first resize might change the
+    // scroll bar on the right, changeing the width. Weird stuff.
+    resize();
     resize();
 }
 

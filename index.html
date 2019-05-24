@@ -23,6 +23,13 @@
                 <canvas id="maincanvas" width="800" height="600"></canvas>
                 <div class="graph-controls">
                     <div class="inline">
+                        <p>Trace x:</p>
+                        <input type="number" id="trace-x" value="0" title="Hold shift and drag across the graph to manually move the tracing point.">
+                    </div>
+                    <div class="inline">
+                        <input type="button" onclick="view.snap()" value="Snap camera angle" title="ctrl+Q">
+                    </div>
+                    <div class="inline">
                         <p>x Offset:</p>
                         <input type="number" id="x-offset" value="0">
                     </div>
@@ -50,7 +57,7 @@
                         <p>Projection: </p>
                         <select name="projection" id="projection">
                             <option value="perspective">Perspective</option>
-                            <option value="orthographic">Orthographic</option>
+                            <option value="orthogonal">Orthogonal</option>
                         </select>
 
                     </div>
