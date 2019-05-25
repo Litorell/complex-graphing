@@ -665,20 +665,29 @@ yOffset.oninput = updateView;
 zOffset.oninput = updateView;
 
 
+let updateRequested = false;
+
 // Updates the canvas and redraws the axis lines and function lines. Normally called when the view is changed.
 function updateCanvas() {
-    mainCanvas.getContext("2d").clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+    if (!updateRequested) {
+        updateRequested = true;
+        window.requestAnimationFrame(() => {
+            mainCanvas.getContext("2d").clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            
+            // Start and end of the function
+            let minX = document.getElementById("minX").value;
+            let maxX = document.getElementById("maxX").value;
     
-    // Start and end of the function
-    let minX = document.getElementById("minX").value;
-    let maxX = document.getElementById("maxX").value;
+            let resolution = Math.abs(document.getElementById("resolution").value);
+            if (resolution === 0) resolution = 0.05; // Resolution cannot be 0, leads to ZeroDivisionError
+    
+            drawAxisLines(mainCanvas, view);
+            drawFunction(mainCanvas, Math.min(minX, maxX), Math.max(minX, maxX), resolution, view);
+            drawLabel(mainCanvas, view);
 
-    let resolution = Math.abs(document.getElementById("resolution").value);
-    if (resolution === 0) resolution = 0.05; // Resolution cannot be 0, leads to ZeroDivisionError
-
-    drawAxisLines(mainCanvas, view);
-    drawFunction(mainCanvas, Math.min(minX, maxX), Math.max(minX, maxX), resolution, view);
-    drawLabel(mainCanvas, view);
+            updateRequested = false;
+        });
+    }
 }
 
 // Updates the values in resultList by calling func for each value of x.
