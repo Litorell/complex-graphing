@@ -768,9 +768,13 @@ function userFunction(num) {
 
     let lines = functionText.split("\n").filter(line => line.trim() !== "");
     lines.forEach((line) => {
-        parseExpression(line).forEach((token) => {
-            functionList.push(token);
-        });
+        if ("=#".includes(line[0])) {
+            functionList.push(line);
+        } else {
+            parseExpression(line).forEach((token) => {
+                functionList.push(token);
+            });
+        }
     });
     
 
@@ -788,9 +792,8 @@ function userFunction(num) {
         // Check if line should be interpreted or if it is commented out or empty
         } else if (line !== "" && line [0] !== "#") {
             let variableIndex = getVariableIndex(line);
-            let isCalculatedVariable = Object.keys(calculatedVars).includes(line);
+            let isCalculatedVariable = line in calculatedVars;
             
-
             if (line[0] === "=") {
                 // Store last element in the stack as a variable
                 calculatedVars[line.substring(1).trim()] = functionStack.pop();
