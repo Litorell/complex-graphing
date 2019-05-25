@@ -316,10 +316,17 @@ class View {
         return this._latitude;
     }
 
-    snap() {
+    snapAngle() {
         this._latitude = Math.round((this.latitude / 45)) * 45;
         this._longitude = Math.round((this.longitude / 45)) * 45;
         this.updateMatrix();
+        updateCanvas();
+    }
+
+    snapPosition() {
+        this.offset.x = xOffset.value = Math.round(this.offset.x);
+        this.offset.y = yOffset.value  = Math.round(this.offset.y);
+        this.offset.z = zOffset.value  = Math.round(this.offset.z);
         updateCanvas();
     }
 
@@ -332,14 +339,14 @@ class View {
         let sin = Math.sin;
 
         let longMatrix = new Matrix([
-            [cos(lo), 0, sin(lo)],
-            [0,       1, 0       ],
-            [-sin(lo), 0, cos(lo) ]
+            [ cos(lo), 0, sin(lo)],
+            [       0, 1,       0],
+            [-sin(lo), 0, cos(lo)]
         ]);
 
         let latMatrix = new Matrix([
-            [1, 0,        0      ],
-            [0, cos(la),  sin(la)],
+            [1,        0,       0],
+            [0,  cos(la), sin(la)],
             [0, -sin(la), cos(la)]
         ]);
         
@@ -594,7 +601,6 @@ function drawLabel(canvas, view) {
     let height = canvas.height;
 
     let ctx = canvas.getContext("2d");
-    ctx.font = `${20 * pixelRatio}px sans-serif`;
     
     if (functionText.length > 0) {
         userFunction(tracingPoint).forEach((tracingResult) => {
@@ -610,19 +616,22 @@ function drawLabel(canvas, view) {
                 let pointX =  tracing.x + width  * 0.5;
                 let pointY = -tracing.y + height * 0.5;
 
+                ctx.font = `${14 * pixelRatio}px sans-serif`;
+
                 let line1 = `x = ${Math.round(tracingPoint * 100) / 100}`;
                 let line2 = `z = ${tracingResult.print(2)}`;
 
-                ctx.fillRect(pointX + 10 * pixelRatio, pointY - 20 * pixelRatio, (15 + Math.max(line1.length, line2.length) * 8.5) * pixelRatio, 40 * pixelRatio);
+                let labelWidth = Math.max(ctx.measureText(line1).width, ctx.measureText(line2).width);
+
+                ctx.fillRect(pointX + 10 * pixelRatio, pointY - 20 * pixelRatio, 10 * pixelRatio + labelWidth, 40 * pixelRatio);
                 ctx.beginPath();
                 ctx.moveTo(pointX, pointY);
-                ctx.lineTo(pointX + 10, pointY - 5);
-                ctx.lineTo(pointX + 10, pointY + 5)
+                ctx.lineTo(pointX + 10 * pixelRatio, pointY - 5 * pixelRatio);
+                ctx.lineTo(pointX + 10 * pixelRatio, pointY + 5 * pixelRatio)
                 ctx.closePath();
 
                 ctx.fill();
 
-                ctx.font = `${16 * pixelRatio}px monospace`;
 
                 ctx.fillStyle = "#FFFFFF";
                 ctx.fillText(line1, pointX + 15 * pixelRatio, pointY -  4 * pixelRatio);
@@ -657,7 +666,7 @@ zOffset.oninput = updateView;
 
 
 // Updates the canvas and redraws the axis lines and function lines. Normally called when the view is changed.
-function updateCanvas() {    
+function updateCanvas() {
     mainCanvas.getContext("2d").clearRect(0, 0, mainCanvas.width, mainCanvas.height);
     
     // Start and end of the function
@@ -670,7 +679,6 @@ function updateCanvas() {
     drawAxisLines(mainCanvas, view);
     drawFunction(mainCanvas, Math.min(minX, maxX), Math.max(minX, maxX), resolution, view);
     drawLabel(mainCanvas, view);
-
 }
 
 // Updates the values in resultList by calling func for each value of x.
@@ -1051,45 +1059,31 @@ document.getElementById("trace-x").addEventListener("change", (event) => {
 });
 
 
-
 // Used to change the view when the user drags thew cursor/finger over the graph.
 // Normally called when the user clicks/touches the graph window.
 function rotateGraph(event) {
     let originalX;
     let originalY;
-    let originalDistance; // Distance between touch points
 
     let originalLongitude;
     let originalLatitude;
 
-    // If user has clicked
     if (event.offsetX) {
+        // User has clicked
         originalX = event.offsetX;
         originalY = event.offsetY;
     } else {
         // User has touched
-        
-        if (event.touches.length > 2) return; // Ignore 3 or more touches
-
         event.preventDefault();
-        if (event.touches.length === 1) {
-            // User only touches at one point
-            originalX = event.touches[0].pageX;
-            originalY = event.touches[0].pageY;
-        } else {
-            // User touches at several points
-            var originalZoom = view.zoom;
-            originalX = (event.touches[0].pageX + event.touches[1].pageX) * 0.5;
-            originalY = (event.touches[0].pageY + event.touches[1].pageY) * 0.5;
-            originalDistance = Math.sqrt(Math.pow(event.touches[0].pageX - event.touches[1].pageX, 2) + Math.pow(event.touches[0].pageY - event.touches[1].pageY, 2));
-        }
+        originalX = event.touches[0].pageX;
+        originalY = event.touches[0].pageY;
     }
    
 
     originalLatitude = view.latitude;
     originalLongitude = view.longitude;
 
-    // User moves the mouse cursoe
+    // User moves the mouse cursor
     function mousemove(event) {
         view.longitude = originalLongitude - (event.offsetX - originalX) * 0.5;
         view.latitude = originalLatitude + (event.offsetY - originalY) * 0.5;
@@ -1097,46 +1091,33 @@ function rotateGraph(event) {
     }
 
     // User moves one touch point
-    function touchmove(event) {
-        let x;
-        let y;
-        if (event.touches.length === 1) {
-            x = event.touches[0].pageX;
-            y = event.touches[0].pageY;    
-        } else {
-            x = (event.touches[0].pageX + event.touches[1].pageX) * 0.5;
-            y = (event.touches[0].pageY + event.touches[1].pageY) * 0.5;
+    function touchMove(event) {
+        let x = event.touches[0].pageX;
+        let y = event.touches[0].pageY;
 
-            // Zoom based on the distance between the two touch points
-            let distance = Math.sqrt(Math.pow(event.touches[0].pageX - event.touches[1].pageX, 2) + Math.pow(event.touches[0].pageY - event.touches[1].pageY, 2));
-            view.zoom = originalZoom * (originalDistance / distance);
-        }
-
-        view.longitude = originalLongitude - (x - originalX) * 0.5;
-        view.latitude = originalLatitude + (y - originalY) * 0.5;
+        mousemove({
+            offsetX: x,
+            offsetY: y
+        });
 
         updateCanvas();
     }
-    
-    mainCanvas.addEventListener("mousemove", mousemove);
-    mainCanvas.addEventListener("mouseup", function() {
-        mainCanvas.removeEventListener("mousemove", mousemove);
-    })
 
-    mainCanvas.addEventListener("touchmove", touchmove);
-    mainCanvas.addEventListener("touchend", function(event) {
-        if (event.touches.length === 0) {
-            // Remove event listener when user releases all touch points
-            mainCanvas.removeEventListener("touchmove", touchmove);
-        } else if (event.touches.length === 1) {
-            // Reset original values when there is only 1 touch point left.
-            originalX = event.touches[0].pageX;
-            originalY = event.touches[0].pageY;
-            
-            originalLatitude = view.latitude;
-            originalLongitude = view.longitude;
-        }
-    });
+    
+    function stopListeners() {
+        mainCanvas.removeEventListener("touchmove", touchMove);
+        mainCanvas.removeEventListener("touchend", stopListeners);
+        mainCanvas.removeEventListener("touchstart", stopListeners);
+        mainCanvas.removeEventListener("mousemove", mousemove);
+    }
+
+    mainCanvas.addEventListener("touchmove", touchMove);
+    mainCanvas.addEventListener("touchend", stopListeners);
+    mainCanvas.addEventListener("touchstart", stopListeners);
+
+    mainCanvas.addEventListener("mousemove", mousemove);
+    mainCanvas.addEventListener("mouseup", stopListeners);
+
 }
 
 function moveGraph(event) {
@@ -1144,14 +1125,25 @@ function moveGraph(event) {
     let width = mainCanvas.width;
     let height = mainCanvas.height;
     
-    let originalX = event.offsetX * devicePixelRatio;
-    let originalY = event.offsetY * devicePixelRatio;
+    let originalX; 
+    let originalY;
+
+    let originalZoom;
+
+    if (event.offsetX) {
+        originalX = event.offsetX * devicePixelRatio;
+        originalY = event.offsetY * devicePixelRatio;
+    } else {
+        event.preventDefault();
+        originalZoom = view.zoom;
+        originalX = (event.touches[0].pageX + event.touches[1].pageX) * 0.5 * devicePixelRatio;
+        originalY = (event.touches[0].pageY + event.touches[1].pageY) * 0.5 * devicePixelRatio;
+        originalDistance = Math.sqrt(Math.pow(event.touches[0].pageX - event.touches[1].pageX, 2) + Math.pow(event.touches[0].pageY - event.touches[1].pageY, 2));
+    }
 
     originalX -= width * 0.5;
     originalY -= height * 0.5;
     originalY *= -1;
-
-    let originalOffset = new Vector3D(xOffset, yOffset, zOffset);
 
     let projectedOriginal = view.getProjectedVector([originalX, originalY]);
     
@@ -1159,7 +1151,6 @@ function moveGraph(event) {
     function ctrlMove(event) {
         let x = event.offsetX * devicePixelRatio;
         let y = event.offsetY * devicePixelRatio;
-
 
         x -= width * 0.5;
         y -= height * 0.5;
@@ -1170,7 +1161,6 @@ function moveGraph(event) {
         projected[1] -= projectedOriginal[1];
         projected[2] -= projectedOriginal[2];
         
-
         xOffset.value -= projected[0];
         yOffset.value -= projected[1];
         zOffset.value -= projected[2];
@@ -1178,15 +1168,52 @@ function moveGraph(event) {
         updateView();
     }
 
-    mainCanvas.addEventListener("mousemove", ctrlMove);
-    mainCanvas.addEventListener("mouseup", () => {
+    function touchMove(event) {
+        let x = (event.touches[0].pageX + event.touches[1].pageX) * 0.5;
+        let y = (event.touches[0].pageY + event.touches[1].pageY) * 0.5;
+
+        // Zoom based on the distance between the two touch points
+        let distance = Math.sqrt(Math.pow(event.touches[0].pageX - event.touches[1].pageX, 2) + Math.pow(event.touches[0].pageY - event.touches[1].pageY, 2));
+        view.zoom = originalZoom * (originalDistance / distance);
+
+        ctrlMove({
+            offsetX: x,
+            offsetY: y
+        });
+    }
+
+    mainCanvas.addEventListener("touchmove", touchMove);
+
+    function stopListeners() {
+        mainCanvas.removeEventListener("touchmove", ctrlMove);
+        mainCanvas.removeEventListener("touchend", stopListeners);
+        mainCanvas.removeEventListener("touchstart", stopListeners);
         mainCanvas.removeEventListener("mousemove", ctrlMove);
-    });
+    }
+
+    mainCanvas.addEventListener("touchend", stopListeners);
+    mainCanvas.addEventListener("touchstart", stopListeners);
+    
+    mainCanvas.addEventListener("mousemove", ctrlMove);
+    mainCanvas.addEventListener("mouseup", stopListeners);
     
 }
 
-mainCanvas.addEventListener("mousedown", (event) => {
 
+function touchController(event) {
+    let length = event.touches.length;
+    if (length === 1) {
+        rotateGraph(event);
+    } else if (length === 2) {
+        moveGraph(event);
+    }
+}
+
+mainCanvas.addEventListener("touchstart", touchController);
+mainCanvas.addEventListener("touchend", touchController);
+
+
+function clickController (event) {
     if (event.getModifierState("Shift")) {
         function shiftMove(event) {
             setTracingPoint(event.offsetX, event.offsetY, mainCanvas);
@@ -1202,11 +1229,14 @@ mainCanvas.addEventListener("mousedown", (event) => {
     } else {
         moveGraph(event);
     }
-});
+}
+
+// Mouse Controller
+
+mainCanvas.addEventListener("mousedown", clickController);
 
 
 
-mainCanvas.addEventListener("touchstart", rotateGraph);
 
 function isFullscreen() {
     return document.fullscreenElement !== null;
@@ -1270,7 +1300,9 @@ document.getElementById("projection").addEventListener("change", function(event)
 
 document.addEventListener("keydown", (event) => {
     if (event.code === "KeyQ" && event.ctrlKey) {
-        view.snap();
+        view.snapAngle();
+    } else if (event.code === "KeyI" && event.ctrlKey) {
+        view.snapPosition();
     }
 });
 
