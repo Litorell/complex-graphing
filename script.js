@@ -1325,7 +1325,7 @@ window.onload = () => {
     variableListToHTML();
 
     // Initial sizing. Called twice because the first resize might change the
-    // scroll bar on the right, changeing the width. Weird stuff.
+    // scroll bar on the right, changing the width. Weird stuff.
     resize();
     resize();
 }
