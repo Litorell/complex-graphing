@@ -43,11 +43,11 @@ function parseToken(expression, index) {
 }
 
 function isFunction(token) {
-    return (token in operations && operations[token].args === 1);
+    return (token in Complex.operations && Complex.operations[token].args === 1);
 }
 
 function isOperator(token) {
-    return (token in operations && operations[token].args === 2);
+    return (token in Complex.operations && Complex.operations[token].args === 2);
 }
 
 function isNumber(token) {
