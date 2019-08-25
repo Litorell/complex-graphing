@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: expression-parser.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: expression-parser.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @file Main script of the complex graphing calculator.
  * 
  * @copyright Oscar Litorell 2019
@@ -58,11 +86,11 @@ class ExpressionParser {
         }
 
 
-        for (var i = index + 1; i < expression.length; i++) {
+        for (var i = index + 1; i &lt; expression.length; i++) {
             if (ExpressionParser.getType(expression[i]) !== type) {
 
                 // If last character is not i
-                if (!(expression[i] === "i" && (ExpressionParser.getType(expression[i - 1]) === type))) break;
+                if (!(expression[i] === "i" &amp;&amp; (ExpressionParser.getType(expression[i - 1]) === type))) break;
             };
         }
 
@@ -78,7 +106,7 @@ class ExpressionParser {
      * @returns {boolean}
      */
     static isFunction(token) {
-        return (token in operations && operations[token].args === 1);
+        return (token in operations &amp;&amp; operations[token].args === 1);
     }
 
     /**
@@ -86,7 +114,7 @@ class ExpressionParser {
      * @param {string} token 
      */
     static isOperator(token) {
-        return (token in operations && operations[token].args === 2);
+        return (token in operations &amp;&amp; operations[token].args === 2);
     }
 
     /**
@@ -101,8 +129,8 @@ class ExpressionParser {
 
     /**
      * Parse an infix notation expression into a postfix expression. Logic is taken largely from wikipedia:
-     * <br>
-     * <a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm#The_algorithm_in_detail">https://en.wikipedia.org/wiki/Shunting-yard_algorithm#The_algorithm_in_detail</a>
+     * &lt;br>
+     * &lt;a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm#The_algorithm_in_detail">https://en.wikipedia.org/wiki/Shunting-yard_algorithm#The_algorithm_in_detail&lt;/a>
      * @param {string} expression - The expression to parse written in infix notation.
      * @returns {string[]} The postfix expression stack.
      * @example
@@ -125,7 +153,7 @@ class ExpressionParser {
         let outputQueue = [];
 
 
-        for (let i = 0; i < expression.length;) {
+        for (let i = 0; i &lt; expression.length;) {
             let token = ExpressionParser.parseToken(expression, i);
 
             i += token.length;       
@@ -134,10 +162,10 @@ class ExpressionParser {
                 operatorStack.push(token);
             } else if (ExpressionParser.isOperator(token)) {
                 let top = operatorStack[operatorStack.length - 1];
-                while (operatorStack.length > 0 && (ExpressionParser.isFunction(top)
-                    || (ExpressionParser.isOperator(top) && operators[top].precedence > operators[token].precedence)
-                    || (ExpressionParser.isOperator(top) && operators[top].precedence === operators[token].precedence && operators[top].associativity === "left"))
-                    && (top !== "(")) {
+                while (operatorStack.length > 0 &amp;&amp; (ExpressionParser.isFunction(top)
+                    || (ExpressionParser.isOperator(top) &amp;&amp; operators[top].precedence > operators[token].precedence)
+                    || (ExpressionParser.isOperator(top) &amp;&amp; operators[top].precedence === operators[token].precedence &amp;&amp; operators[top].associativity === "left"))
+                    &amp;&amp; (top !== "(")) {
                     outputQueue.push(operatorStack.pop());
                     top = operatorStack[operatorStack.length - 1];
                 }
@@ -145,10 +173,10 @@ class ExpressionParser {
             } else if (token === "(") {
                 operatorStack.push(token);
             } else if (token === ")") {
-                while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] !== "(") {
+                while (operatorStack.length > 0 &amp;&amp; operatorStack[operatorStack.length - 1] !== "(") {
                     outputQueue.push(operatorStack.pop())
                 }
-                if (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] === "(") {
+                if (operatorStack.length > 0 &amp;&amp; operatorStack[operatorStack.length - 1] === "(") {
                     operatorStack.pop();
                 }
             } else {
@@ -163,4 +191,26 @@ class ExpressionParser {
 
         return outputQueue;
     }
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Complex.html">Complex</a></li><li><a href="ExpressionParser.html">ExpressionParser</a></li><li><a href="LineStyle.html">LineStyle</a></li><li><a href="Matrix.html">Matrix</a></li><li><a href="Vector.html">Vector</a></li><li><a href="View.html">View</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addVariableElement">addVariableElement</a></li><li><a href="global.html#clickController">clickController</a></li><li><a href="global.html#deleteVariable">deleteVariable</a></li><li><a href="global.html#drawAxisLines">drawAxisLines</a></li><li><a href="global.html#drawCanvas3d">drawCanvas3d</a></li><li><a href="global.html#drawFunction">drawFunction</a></li><li><a href="global.html#drawLabel">drawLabel</a></li><li><a href="global.html#fullscreen">fullscreen</a></li><li><a href="global.html#isFullscreen">isFullscreen</a></li><li><a href="global.html#List">List</a></li><li><a href="global.html#moveGraph">moveGraph</a></li><li><a href="global.html#parseNumber">parseNumber</a></li><li><a href="global.html#resize">resize</a></li><li><a href="global.html#rotateGraph">rotateGraph</a></li><li><a href="global.html#setTracingPoint">setTracingPoint</a></li><li><a href="global.html#touchController">touchController</a></li><li><a href="global.html#updateCanvas">updateCanvas</a></li><li><a href="global.html#updateFunction">updateFunction</a></li><li><a href="global.html#updateFunctionValues">updateFunctionValues</a></li><li><a href="global.html#updateVariableList">updateVariableList</a></li><li><a href="global.html#updateVariableType">updateVariableType</a></li><li><a href="global.html#updateView">updateView</a></li><li><a href="global.html#userFunction">userFunction</a></li><li><a href="global.html#variableListToHTML">variableListToHTML</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sun Aug 25 2019 22:34:04 GMT+0200 (Västeuropa, sommartid)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

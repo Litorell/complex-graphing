@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: Matrix</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: Matrix</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>Matrix<span class="signature">(matrix<span class="signature-attributes">opt</span>, size<span class="signature-attributes">opt</span>, value<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">Holds an n * m matrix.</div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="Matrix"><span class="type-signature"></span>new Matrix<span class="signature">(matrix<span class="signature-attributes">opt</span>, size<span class="signature-attributes">opt</span>, value<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Can either be constructed with an array of arrays (2D array) or two dimensions and a default value.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>matrix</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>size</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>m</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The height of the matrix.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>n</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The width of the matrix.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>transpose</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Matrix.html">Matrix</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The transpose of the matrix.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="linear-algebra.js.html">linear-algebra.js</a>, <a href="linear-algebra.js.html#line21">line 21</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".multiplication"><span class="type-signature">(static) </span>multiplication<span class="signature">(matrix1, matrix2)</span><span class="type-signature"> &rarr; {<a href="Matrix.html">Matrix</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Matrix multiplication. Multiply two matrices.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>matrix1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Matrix.html">Matrix</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The left matrix.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>matrix2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Matrix.html">Matrix</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The right matrix.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="linear-algebra.js.html">linear-algebra.js</a>, <a href="linear-algebra.js.html#line99">line 99</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Matrix.html">Matrix</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>let matrix1 = new Matrix([    [0, 1],    [0, 0]]);let matrix2 = new Matrix([    [0, 0],    [1, 0]]);Matrix.multiplication(matrix1, matrix2);// returns new Matrix([//     [1, 0],//     [0, 0]// ]);</code></pre>
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="transformVector"><span class="type-signature"></span>transformVector<span class="signature">(vector)</span><span class="type-signature"> &rarr; {Array.&lt;number>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Applies the matrix's transformation to a vector.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>vector</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="linear-algebra.js.html">linear-algebra.js</a>, <a href="linear-algebra.js.html#line65">line 65</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The transformed vector.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;number></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Complex.html">Complex</a></li><li><a href="ExpressionParser.html">ExpressionParser</a></li><li><a href="LineStyle.html">LineStyle</a></li><li><a href="Matrix.html">Matrix</a></li><li><a href="Vector.html">Vector</a></li><li><a href="View.html">View</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addVariableElement">addVariableElement</a></li><li><a href="global.html#clickController">clickController</a></li><li><a href="global.html#deleteVariable">deleteVariable</a></li><li><a href="global.html#drawAxisLines">drawAxisLines</a></li><li><a href="global.html#drawCanvas3d">drawCanvas3d</a></li><li><a href="global.html#drawFunction">drawFunction</a></li><li><a href="global.html#drawLabel">drawLabel</a></li><li><a href="global.html#fullscreen">fullscreen</a></li><li><a href="global.html#isFullscreen">isFullscreen</a></li><li><a href="global.html#List">List</a></li><li><a href="global.html#moveGraph">moveGraph</a></li><li><a href="global.html#parseNumber">parseNumber</a></li><li><a href="global.html#resize">resize</a></li><li><a href="global.html#rotateGraph">rotateGraph</a></li><li><a href="global.html#setTracingPoint">setTracingPoint</a></li><li><a href="global.html#touchController">touchController</a></li><li><a href="global.html#updateCanvas">updateCanvas</a></li><li><a href="global.html#updateFunction">updateFunction</a></li><li><a href="global.html#updateFunctionValues">updateFunctionValues</a></li><li><a href="global.html#updateVariableList">updateVariableList</a></li><li><a href="global.html#updateVariableType">updateVariableType</a></li><li><a href="global.html#updateView">updateView</a></li><li><a href="global.html#userFunction">userFunction</a></li><li><a href="global.html#variableListToHTML">variableListToHTML</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sun Aug 25 2019 22:34:04 GMT+0200 (Västeuropa, sommartid)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

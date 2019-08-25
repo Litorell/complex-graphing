@@ -1,12 +1,18 @@
-/*
+/**
+ * @file Main script of the complex graphing calculator.
+ * 
+ * @copyright Oscar Litorell 2019
+ */
 
-    Copyright Oscar Litorell 2019
 
-*/
-
-
-// Class which holds a certain style of line (color and width), used when drawing on canvas.
+/**
+ * Contains the colour and width of line when drawing on a canvas.
+ */
 class LineStyle {
+    /**
+     * @param {number} width - Width in px.
+     * @param {string} color - Colour in hex e.g. "#F9DA2C".
+     */
     constructor(width, color) {
         this.width = width;
         this.color = color;
@@ -14,18 +20,24 @@ class LineStyle {
 }
 
 
-// Holds information about the viewport perspective and position relative to the coordinate system.
+/**
+ * Holds information about the viewport perspective and position relative to the coordinate system.
+ * @property {number} longitude - Longitude angle (degrees) 
+ * @property {number} latitude - Latitude angle (degrees) 
+ */
 class View {
+    /**
+     * @param {number} [longitude] - Longitude angle (degrees).
+     * @param {number} [latitude] - Latitude angle (degrees).
+     * @param {number} [offset] - Coordinates for center of rotation.
+     * @param {number} [zoom] - Zoom for perspective mode this equates to distance from the center of rotation).
+     * @param {string} [projection] - Type of projection (either "perspective" or "orthogonal").
+     */
     constructor(longitude = 0, latitude = 0, offset = [0, 0, 0], zoom = 100, projection="perspective") {
-        // Longitude angle (degrees)
         this._longitude = longitude;
-        // Latitude angle (degrees)
         this._latitude = latitude;
-        // Coordinates for center of rotation
         this.offset = offset;
-        // Zoom (for perspective mode this equates to distance from the center of rotation)
         this.zoom = zoom;
-        // Type of projection (either "perspective" or "orthogonal")
         this.projection = projection;
         this.updateMatrix();
     }
@@ -47,6 +59,9 @@ class View {
         return this._latitude;
     }
 
+    /**
+     * Snap the viewing angle to the closest 45 degrees (both longitudinally and laterally).
+     */
     snapAngle() {
         this._latitude = Math.round((this.latitude / 45)) * 45;
         this._longitude = Math.round((this.longitude / 45)) * 45;
@@ -54,6 +69,9 @@ class View {
         updateCanvas();
     }
 
+    /**
+     * Snap the center of rotation to an integer position.
+     */
     snapPosition() {
 
         this.offset = this.offset.map(x => Math.round(x));
@@ -64,7 +82,9 @@ class View {
         updateCanvas();
     }
 
-    // Updates the matrix which encodes the rotation.
+    /**
+     * Update the rotation matrix based on the current longitude and latitude.
+     */
     updateMatrix() {
         let lo = this._longitude / 180 * Math.PI;
         let la = this._latitude / 180 * Math.PI;
@@ -84,9 +104,15 @@ class View {
             [0, -sin(la), cos(la)]
         ]);
         
-        this.matrix = longMatrix.multipliedBy(latMatrix);
+        this.matrix = Matrix.multiplication(latMatrix, longMatrix);
     }
 
+    /**
+     * Get the 3D coordinate of a certain point on the canvas a given distance away.
+     * @param {number[]} point - The coordinates on the canvas, with [0, 0] being in the middle and positive values up and to the right.
+     * @param {number} distance - The distance that the point is. Will default to the distance to the rotation point.
+     * @returns {number[]}
+     */
     getProjectedVector(point, distance=null) {
         if (distance === null) distance = this.zoom;
 
@@ -107,14 +133,22 @@ class View {
         projectedVector[2] += this.offset[2];
 
         return projectedVector;
-
     }
 
+    /**
+     * Get the canvas coordinates of a given vector.
+     * @param {number[]} vectorInput
+     * @returns {number[]} The coordinates on the canvas, with [0, 0] being in the middle and positive values up and to the right.
+     */
     projectVector(vectorInput) {
         return (this.projection === "perspective") ? this.projectVectorPerspective(vectorInput) : this.projectVectorOrtho(vectorInput);
     }
 
-    // Project a vector onto a plane using perspective (like a pinhole camera)
+    /**
+     * Get the canvas coordinates of a given vector using a perspective projection (like a pinhole camera).
+     * @param {number[]} vectorInput 
+     * @returns {number[]} The coordinates on the canvas, with [0, 0] being in the middle and positive values up and to the right.
+     */
     projectVectorPerspective(vectorInput) {
         let vector = [vectorInput[0] - this.offset[0], vectorInput[1] - this.offset[1], vectorInput[2] - this.offset[2]];
 
@@ -130,7 +164,12 @@ class View {
         return [x, y];
     }
 
-    // Projects a vector onto a plane (orthogonally)
+
+    /**
+     * Get the canvas coordinates of a given vector using an orthogonal projection (parallel lines remain parallel).
+     * @param {number[]} vectorInput 
+     * @returns {number[]} The coordinates on the canvas, with [0, 0] being in the middle and positive values up and to the right.
+     */
     projectVectorOrtho(vectorInput) {
         let vector = [vectorInput[0] - this.offset[0], vectorInput[1] - this.offset[1], vectorInput[2] - this.offset[2]];
 
@@ -142,7 +181,13 @@ class View {
         return [x, y];
     }
 
-    // Cut a line such that only the section in front of the "camera" is rendered
+
+    /**
+     * Cut a line such that only the section in front of the "camera" is rendered.
+     * @param {number[]} lineStart - Vector for the start of the line. 
+     * @param {number[]} lineEnd - Vector for the end of the line. 
+     * @returns {number[][]} - Array with the start and end vectors of the part of the line in front of the camera.
+     */
     calculateClip(lineStart, lineEnd) {
         let vector1 = [lineStart[0] - this.offset[0], lineStart[1] - this.offset[1], lineStart[2] - this.offset[2]];
         let vector2 = [lineEnd[0] - this.offset[0], lineEnd[1] - this.offset[1], lineEnd[2] - this.offset[2]];
@@ -187,14 +232,18 @@ class View {
 
         // No clipping
         return [[...lineStart], [...lineEnd]];
-        
     }
 }
 
 
-
-
-// Draw a line on the canvas
+/**
+ * Draw a line on the canvas between two 3D points.
+ * @param {HTMLElement} canvas - The canvas to draw on.
+ * @param {number[]} lineStart - Vector for the start of the line.
+ * @param {number[]} lineEnd - Vector for the end of the line.
+ * @param {LineStyle} lineStyle - Thickness and colour of the line.
+ * @param {View} view - How the camera is positioned.
+ */
 function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
     let ctx = canvas.getContext("2d");
     let width = canvas.width;
@@ -248,7 +297,11 @@ var lineStyle = new LineStyle(1, "#000000");
 var mainCanvas = document.getElementById("maincanvas");
 
 
-// Draw the x, y (re) and z (im) axis lines as well as 1 numbers.
+/**
+ * Draw the x, y (re) and z (im) axis lines as well as 1 numbers.
+ * @param {HTMLElement} canvas - The canvas to draw on.
+ * @param {View} view - How the camera is positioned.
+ */
 function drawAxisLines(canvas, view) {
     let pixelRatio = window.devicePixelRatio;
     
@@ -287,7 +340,15 @@ function drawAxisLines(canvas, view) {
 
 }
 
-// Draws all values for a function on the canvas
+
+/**
+ * Draws all values for a function on the canvas
+ * @param {HTMLElement} canvas - The canvas to draw on.
+ * @param {number} begin - The start of the domain of the function.
+ * @param {number} end - The end of the domain of the function.
+ * @param {number} [step] - The distance between each sample (the resolution).
+ * @param {View} view - How the camera is positioned.
+ */
 function drawFunction(canvas, begin, end, step = 0.1, view) {
     let pixelRatio = window.devicePixelRatio;
 
@@ -328,6 +389,11 @@ function drawFunction(canvas, begin, end, step = 0.1, view) {
     }
 }
 
+/**
+ * Draw the label when tracing the function.
+ * @param {HTMLElement} canvas - The canvas to draw on.
+ * @param {View} view - How the camera is positioned.
+ */
 function drawLabel(canvas, view) {
     let pixelRatio = window.devicePixelRatio;
     
@@ -389,11 +455,14 @@ var view = new View(40, 30, [xOffset.value, yOffset.value, zOffset.value].map(x 
 // Contains all the values for the result of the function(s)
 var resultList = [];
 
-// Updates the view and canvas when an offset is changed
+/**
+ * Update the view and canvas when an offset is changed.
+ */
 function updateView() {
     view.offset = [xOffset.value, yOffset.value, zOffset.value].map(x => Number(x));
     updateCanvas();
 }
+
 xOffset.oninput = updateView;
 yOffset.oninput = updateView;
 zOffset.oninput = updateView;
@@ -401,7 +470,10 @@ zOffset.oninput = updateView;
 
 let updateRequested = false;
 
-// Updates the canvas and redraws the axis lines and function lines. Normally called when the view is changed.
+
+/**
+ * Update the canvas and redraw the axis lines and function lines. Normally called when the view is changed.
+ */
 function updateCanvas() {
     if (!updateRequested) {
         updateRequested = true;
@@ -424,7 +496,11 @@ function updateCanvas() {
     }
 }
 
-// Updates the values in resultList by calling func for each value of x.
+
+/**
+ * Update the values in resultList by calling func for each value of x.
+ * @param {function} func - The function to call.
+ */
 function updateFunctionValues(func) {
     let begin = Number(document.getElementById("minX").value);
     let end = Number(document.getElementById("maxX").value);
@@ -440,7 +516,11 @@ function updateFunctionValues(func) {
 }
 
 
-// List of all variables, with e and pi as default.
+
+/**
+ * @member {Object[]}
+ * List of all variables, with e and pi as default.
+ */
 let variableList = [
     {
         name: "pi",
@@ -464,7 +544,11 @@ function getVariableIndex(name) {
     return -1;
 }
 
-// Parse a complex number string e.g. "4" or "3i" and return a Complex object.
+/**
+ * Convert a complex number string e.g. "4" or "3i" into a Complex object.
+ * @param {string} num 
+ * @returns {Complex}
+ */
 function parseNumber(num) {
     if (num[num.length - 1] !== "i") {
         return new Complex(num);
@@ -478,14 +562,37 @@ function parseNumber(num) {
 let functionText = "";
 
 
-// Updates the function values and the canvas, and is normally called when the user clicks the "set function" button.
+/**
+ * Updates the function values and the canvas, and is normally called when the user clicks the "set function" button.
+ */
 function updateFunction() {
     functionText = document.getElementById("function").value;
     updateFunctionValues(userFunction);
     updateCanvas();
 }
 
-// Interprets the function the user has entered and runs it.
+// The symbols for the available functions.
+let operations = {
+    "+": {args: 2, function: Complex.add},
+    "-": {args: 2, function: Complex.subtract},
+    "*": {args: 2, function: Complex.multiply},
+    "/": {args: 2, function: Complex.divide},
+    "^": {args: 2, function: Complex.raise},
+    "ln": {args: 1, function: Complex.ln},
+    "abs": {args: 1, function: Complex.abs},
+    "sin": {args: 1, function: Complex.sin},
+    "cos": {args: 1, function: Complex.cos},
+    "tan": {args: 1, function: Complex.tan},
+    "asin": {args: 1, function: Complex.asin},
+    "acos": {args: 1, function: Complex.acos},
+    "atan": {args: 1, function: Complex.atan}
+};
+
+/**
+ * Interprets the function the user has entered and runs it.
+ * @param {number} num - The x variable of the function the user entered.
+ * @returns {number} The result of running the function the user entered with the given x-value.
+ */
 function userFunction(num) {
 
     // Variables assigned using equals symbol, calculated by the function (e.g. =var1)
@@ -500,7 +607,7 @@ function userFunction(num) {
         if ("=#".includes(line[0])) {
             functionList.push(line);
         } else {
-            parseExpression(line).forEach((token) => {
+            ExpressionParser.parseExpression(line).forEach((token) => {
                 functionList.push(token);
             });
         }
@@ -527,11 +634,11 @@ function userFunction(num) {
                 // Store last element in the stack as a variable
                 calculatedVars[line.substring(1).trim()] = functionStack.pop();
 
-            } else if (Complex.operations.hasOwnProperty(line)) {
+            } else if (operations.hasOwnProperty(line)) {
                 // Line is an operation
-                let operation = Complex.operations[line];
+                let operation = operations[line];
                 let values = functionStack.slice(functionStack.length - operation.args);
-                let value = Complex[operation.function].apply(this, values);
+                let value = operation.function.apply(this, values);
                 functionStack.length -= operation.args;
                 functionStack.push(value);
                 
@@ -554,8 +661,11 @@ function userFunction(num) {
 
 let addVarElementBtn = document.getElementById("addVariableElement");
 
-// Adds a new variable to variableList and updates the HTML document.
-// Normally called when the user presses the "add variable" button.
+
+/**
+ * Add a new variable to variableList and update the HTML document.
+ * Normally called when the user presses the "add variable" button.
+ */
 function addVariableElement() {
     variableList.push({
         name: "",
@@ -570,8 +680,12 @@ function addVariableElement() {
     variableListToHTML();
 }
 
-// Updates the list of variables based on the values in the HTML document.
-// Normally called when the user changes any of the variables.
+
+/**
+ * Updates the list of variables based on the values in the HTML document.
+ * Normally called by event listeners when the user changes any of the variables in the HTML document.
+ * @param {Event} event 
+ */
 function updateVariableList(event) {
 
     let element = event.target;
@@ -606,7 +720,10 @@ function updateVariableList(event) {
     variableListToHTML();
 }
 
-// Updates variableList and the HTML document when the user changes the type of the variable.
+/**
+ * Updates variableList and the HTML document when the user changes the type of a variable.
+ * @param {event} event 
+ */
 function updateVariableType(event) {
 
     let element = event.target;
@@ -628,7 +745,11 @@ var variableTypes = [
     "time"
 ];
 
-
+/**
+ * Delete a variable from variableList and the HTML document.
+ * Normally called when a user clicks a "delete" button.
+ * @param {event} event 
+ */
 function deleteVariable(event) {
 
     let element = event.target;
@@ -640,7 +761,10 @@ function deleteVariable(event) {
     
 }
 
-// Turns the list of variables into HTML
+
+/**
+ * Shows the variables in variableList in the HTML document.
+ */
 function variableListToHTML() {
     let variableElement = document.getElementById("variable-list");
     variableElement.innerHTML = "";
@@ -753,9 +877,13 @@ mainCanvas.addEventListener("wheel", function(event) {
 
 let tracingPoint = 0;
 
+/**
+ * Set the tracing point based on where the user's mouse is.
+ * @param {number} clickX - The x coordinate of the click, with 0 on the left side of the canvas.
+ * @param {number} clickY - The y coordinate of the click, with 0 on the top side of the canvas.
+ * @param {HTMLElement} canvas - The canvas that the user clicked.
+ */
 function setTracingPoint(clickX, clickY, canvas) {
-
-
     let width = canvas.width;
     let height = canvas.height;
 
@@ -791,8 +919,12 @@ document.getElementById("trace-x").addEventListener("change", (event) => {
 });
 
 
-// Used to change the view when the user drags thew cursor/finger over the graph.
-// Normally called when the user clicks/touches the graph window.
+
+/**
+ * Used to change the view when the user drags thew cursor/finger over the graph.
+ * Normally called when the user clicks/touches the graph window.
+ * @param {MouseEvent|TouchEvent} event
+ */
 function rotateGraph(event) {
     let originalX;
     let originalY;
@@ -852,6 +984,11 @@ function rotateGraph(event) {
 
 }
 
+
+/**
+ * Moves the graph translationally. Called when the user moves their fingers or mouse.
+ * @param {MouseEvent|TouchEvent} event
+ */
 function moveGraph(event) {
     
     let width = mainCanvas.width;
@@ -931,7 +1068,13 @@ function moveGraph(event) {
     
 }
 
-
+/**
+ * Decides whether to rotate or translate the graph.
+ * Will rotate the graph when there is one touch point,
+ * and translate the graph when there is two.
+ * Is called whenever there is a TouchEvent on the main canvas.
+ * @param {TouchEvent} event 
+ */
 function touchController(event) {
     let length = event.touches.length;
     if (length === 1) {
@@ -944,7 +1087,14 @@ function touchController(event) {
 mainCanvas.addEventListener("touchstart", touchController);
 mainCanvas.addEventListener("touchend", touchController);
 
-
+/**
+ * Decides whether to rotate, translate or trace the graph.
+ * Will trace the graph if the user is holding shift,
+ * rotate the graph if the user is holding CTRL and 
+ * translate the graph if the user is doing neither.
+ * Is called whenever there is a MouseEvent on the main canvas.
+ * @param {MouseEvent} event 
+ */
 function clickController (event) {
     if (event.getModifierState("Shift")) {
         function shiftMove(event) {
@@ -963,19 +1113,23 @@ function clickController (event) {
     }
 }
 
-// Mouse Controller
-
 mainCanvas.addEventListener("mousedown", clickController);
 
 
 
-
+/**
+ * Check if the user is viewing the graph in fullscreen mode.
+ * @returns {boolean}
+ */
 function isFullscreen() {
     return document.fullscreenElement !== null;
 }
 
-// Changes the size of the canvas element.
-// Normally called when the window is resized.
+
+/**
+ * Changes the size of the canvas element.
+ * Normally called when the window is resized.
+ */
 function resize() {
     let pixelRatio = window.devicePixelRatio;
 
@@ -997,7 +1151,10 @@ function resize() {
     updateCanvas();
 }
 
-// Makes the canvas fullscreen
+
+/**
+ * View the canvas in fullscreen.
+ */
 function fullscreen() {
     let pixelRatio = window.devicePixelRatio;
 
