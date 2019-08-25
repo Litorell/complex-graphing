@@ -14,32 +14,6 @@ class LineStyle {
 }
 
 
-class Vector3D {
-    constructor(x=0, y=0, z=0) {
-        this.x = Number(x);
-        this.y = Number(y);
-        this.z = Number(z);
-    }
-
-    addVector(vector) {
-        this.x += vector.x;
-        this.y += vector.y;
-        this.z += vector.z;
-    }
-
-    added(vector) {
-        return new Vector3D(this.x + vector.x, this.y + vector.y, this.z + vector.z);
-    }
-	
-	subtracted(vector) {
-        return new Vector3D(this.x - vector.x, this.y - vector.y, this.z - vector.z);
-    }
-
-    toArray() {
-        return [this.x, this.y, this.z];
-    }
-}
-
 // Matrix class, also supports matrix multiplication.
 class Matrix {
     // Can either be initialized with an array of arrays (2D array) or two dimensions and a default value.
@@ -83,7 +57,6 @@ class Matrix {
     }
 
     // Applies the transformation correspending to the matrix to a vector.
-    // Note: the vector argument is a normal array, and not a Vector3D object. It also returns a normal array.
     transformVector(vector) {
         let result = new Array(this.m);
         result.fill(0);
@@ -117,9 +90,47 @@ class Matrix {
     }
 }
 
+class Vector {
+    static addition(vector1, vector2) {
+        let length = Math.max(vector1.length, vector2.length);
+        let result = [];
+        
+        for (let i = 0; i < length; i++) {
+            let term1 = vector1[i];
+            let term2 = vector2[i];
+            if (isNaN(term1)) term1 = 0;
+            if (isNaN(term2)) term2 = 0;
+
+            result.push(term1 + term2);
+        }
+
+        return result;
+    }
+
+    static subtraction(vector1, vector2) {
+        let length = Math.max(vector1.length, vector2.length);
+        let result = [];
+        
+        for (let i = 0; i < length; i++) {
+            let term1 = vector1[i];
+            let term2 = vector2[i];
+            if (isNaN(term1)) term1 = 0;
+            if (isNaN(term2)) term2 = 0;
+
+            result.push(term1 - term2);
+        }
+
+        return result;
+    }
+
+    static scalarMultiplication(vector, scalar) {
+        return vector.map(x => x * scalar);
+    }
+}
+
 // Holds information about the viewport perspective and position relative to the coordinate system.
 class View {
-    constructor(longitude = 0, latitude = 0, offset = new Vector3D(0, 0, 0), zoom = 100, projection="perspective") {
+    constructor(longitude = 0, latitude = 0, offset = [0, 0, 0], zoom = 100, projection="perspective") {
         // Longitude angle (degrees)
         this._longitude = longitude;
         // Latitude angle (degrees)
@@ -158,9 +169,12 @@ class View {
     }
 
     snapPosition() {
-        this.offset.x = xOffset.value = Math.round(this.offset.x);
-        this.offset.y = yOffset.value  = Math.round(this.offset.y);
-        this.offset.z = zOffset.value  = Math.round(this.offset.z);
+
+        this.offset = this.offset.map(x => Math.round(x));
+
+        xOffset.value = this.offset[0];
+        yOffset.value = this.offset[1];
+        zOffset.value = this.offset[2];
         updateCanvas();
     }
 
@@ -202,9 +216,9 @@ class View {
         distance -= this.zoom;
 
         let projectedVector = this.matrix.transpose.transformVector([point[0], point[1], distance]);
-        projectedVector[0] += this.offset.x;
-        projectedVector[1] += this.offset.y;
-        projectedVector[2] += this.offset.z;
+        projectedVector[0] += this.offset[0];
+        projectedVector[1] += this.offset[1];
+        projectedVector[2] += this.offset[2];
 
         return projectedVector;
 
@@ -215,9 +229,8 @@ class View {
     }
 
     // Project a vector onto a plane using perspective (like a pinhole camera)
-    // NOTE: vectorInput is a normal array, and not a Vector3D object.
     projectVectorPerspective(vectorInput) {
-        let vector = [vectorInput[0] - this.offset.x, vectorInput[1] - this.offset.y, vectorInput[2] - this.offset.z];
+        let vector = [vectorInput[0] - this.offset[0], vectorInput[1] - this.offset[1], vectorInput[2] - this.offset[2]];
 
         let transformed = this.matrix.transformVector(vector);
         
@@ -228,27 +241,25 @@ class View {
         let x = transformed[0] / transformed[2] * fovCoeff;
         let y = transformed[1] / transformed[2] * fovCoeff;
         
-        return new Vector3D(x, y);
+        return [x, y];
     }
 
     // Projects a vector onto a plane (orthogonally)
-    // NOTE: vectorInput is a normal array, and not a Vector3D object.
     projectVectorOrtho(vectorInput) {
-        let vector = [vectorInput[0] - this.offset.x, vectorInput[1] - this.offset.y, vectorInput[2] - this.offset.z];
+        let vector = [vectorInput[0] - this.offset[0], vectorInput[1] - this.offset[1], vectorInput[2] - this.offset[2]];
 
         let transformed = this.matrix.transformVector(vector);
 
         let x = transformed[0] / this.zoom * 600;
         let y = transformed[1] / this.zoom * 600;
         
-        return new Vector3D(x, y);
+        return [x, y];
     }
 
     // Cut a line such that only the section in front of the "camera" is rendered
-    // NOTE: lineStart and lineEnd are normal arrays, and not Vector3D objects.
     calculateClip(lineStart, lineEnd) {
-        let vector1 = [lineStart[0] - this.offset.x, lineStart[1] - this.offset.y, lineStart[2] - this.offset.z];
-        let vector2 = [lineEnd[0] - this.offset.x, lineEnd[1] - this.offset.y, lineEnd[2] - this.offset.z];
+        let vector1 = [lineStart[0] - this.offset[0], lineStart[1] - this.offset[1], lineStart[2] - this.offset[2]];
+        let vector2 = [lineEnd[0] - this.offset[0], lineEnd[1] - this.offset[1], lineEnd[2] - this.offset[2]];
 
         let transformed1 = this.matrix.transformVector(vector1);
         let transformed2 = this.matrix.transformVector(vector2);
@@ -270,15 +281,15 @@ class View {
 
                 // If the first point is behind the camera
                 if (transformed1[2] < 0) {
-                    point1 = new Vector3D(...lineEnd);
+                    point1 = [...lineEnd];
                     let c = transformed2[2] / Math.abs(dz);
-                    point2 = new Vector3D(lineEnd[0] - (lineEnd[0] - lineStart[0]) * c * 0.99, lineEnd[1] - (lineEnd[1] - lineStart[1]) * c * 0.99, lineEnd[2] - (lineEnd[2] - lineStart[2]) * c * 0.99);
+                    point2 = [lineEnd[0] - (lineEnd[0] - lineStart[0]) * c * 0.99, lineEnd[1] - (lineEnd[1] - lineStart[1]) * c * 0.99, lineEnd[2] - (lineEnd[2] - lineStart[2]) * c * 0.99];
 
                 // If the second point is behind the camera
                 } else {
-                    point1 = new Vector3D(...lineStart);
+                    point1 = [...lineStart];
                     let c = transformed1[2] / Math.abs(dz);
-                    point2 = new Vector3D(lineStart[0] - (lineStart[0] - lineEnd[0]) * c * 0.99, lineStart[1] - (lineStart[1] - lineEnd[1]) * c * 0.99, lineStart[2] - (lineStart[2] - lineEnd[2]) * c * 0.99);
+                    point2 = [lineStart[0] - (lineStart[0] - lineEnd[0]) * c * 0.99, lineStart[1] - (lineStart[1] - lineEnd[1]) * c * 0.99, lineStart[2] - (lineStart[2] - lineEnd[2]) * c * 0.99];
                 }
 
                 return [point1, point2];
@@ -289,12 +300,15 @@ class View {
         }
 
         // No clipping
-        return [new Vector3D(...lineStart), new Vector3D(...lineEnd)];
+        return [[...lineStart], [...lineEnd]];
         
     }
 }
 
-// Draw a line on the canvas, with Vector3D start and endpoints.
+
+
+
+// Draw a line on the canvas
 function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
     let ctx = canvas.getContext("2d");
     let width = canvas.width;
@@ -310,7 +324,7 @@ function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
 
     if (view.projection === "perspective") {
         // Perspective projection
-        clipped = view.calculateClip([lineStart.x, lineStart.y, lineStart.z], [lineEnd.x, lineEnd.y, lineEnd.z]);
+        clipped = view.calculateClip(lineStart, lineEnd);
         if (clipped == null) return;
         point1 = clipped[0];
         point2 = clipped[1];
@@ -321,20 +335,20 @@ function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
         point2 = lineEnd;
     }
 
-    // Start and end coordinates
-    let start = view.projectVector([point1.x, point1.y, point1.z]);
-    let end = view.projectVector([point2.x, point2.y, point2.z]);
+    // Start and end pixel coordinates
+    let start = view.projectVector(point1);
+    let end = view.projectVector(point2);
 
     // Center graph
-    start.x += width * 0.5;
-    start.y = height * 0.5 - start.y;
-    end.x += width * 0.5;
-    end.y = height * 0.5 - end.y;
+    start[0] += width * 0.5;
+    start[1] = height * 0.5 - start[1];
+    end[0] += width * 0.5;
+    end[1] = height * 0.5 - end[1];
     
     // Draw
     ctx.beginPath();
-    ctx.moveTo(start.x, start.y);
-    ctx.lineTo(end.x, end.y);
+    ctx.moveTo(...start);
+    ctx.lineTo(...end);
     ctx.stroke();
     ctx.lineWidth = originalStyle.width;
     ctx.strokeStyle = originalStyle.color;
@@ -356,12 +370,12 @@ function drawAxisLines(canvas, view) {
     let height = canvas.height;
 
     // Draw lines 
-    drawCanvas3d(canvas, new Vector3D(-20, 0, 0), new Vector3D(0, 0, 0), new LineStyle(1 * pixelRatio, "#00FF00"), view);
-    drawCanvas3d(canvas, new Vector3D(20, 0, 0), new Vector3D(0, 0, 0), new LineStyle(2 * pixelRatio, "#00FF00"), view);
-    drawCanvas3d(canvas, new Vector3D(0, -20, 0), new Vector3D(0, 0, 0), new LineStyle(1 * pixelRatio, "#FF0000"), view);
-    drawCanvas3d(canvas, new Vector3D(0, 20, 0), new Vector3D(0, 0, 0), new LineStyle(2 * pixelRatio, "#FF0000"), view);
-    drawCanvas3d(canvas, new Vector3D(0, 0, -20), new Vector3D(0, 0, 0), new LineStyle(1 * pixelRatio, "#0000FF"), view);
-    drawCanvas3d(canvas, new Vector3D(0, 0, 20), new Vector3D(0, 0, 0), new LineStyle(2 * pixelRatio, "#0000FF"), view);
+    drawCanvas3d(canvas, [-20,   0,   0], [0, 0, 0], new LineStyle(1 * pixelRatio, "#00FF00"), view);
+    drawCanvas3d(canvas, [ 20,   0,   0], [0, 0, 0], new LineStyle(2 * pixelRatio, "#00FF00"), view);
+    drawCanvas3d(canvas, [  0, -20,   0], [0, 0, 0], new LineStyle(1 * pixelRatio, "#FF0000"), view);
+    drawCanvas3d(canvas, [  0,  20,   0], [0, 0, 0], new LineStyle(2 * pixelRatio, "#FF0000"), view);
+    drawCanvas3d(canvas, [  0,   0, -20], [0, 0, 0], new LineStyle(1 * pixelRatio, "#0000FF"), view);
+    drawCanvas3d(canvas, [  0,   0,  20], [0, 0, 0], new LineStyle(2 * pixelRatio, "#0000FF"), view);
 
     let ctx = canvas.getContext("2d");
     ctx.font = `${20 * pixelRatio}px sans-serif`;
@@ -372,17 +386,17 @@ function drawAxisLines(canvas, view) {
 
     // Draw numbers
     // If statements check if the number is in front of the camera
-    if (view.projection === "orthogonal" || view.matrix.transformVector([1 - view.offset.x, -view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
+    if (view.projection === "orthogonal" || view.matrix.transformVector(Vector.subtraction([1, 0, 0], view.offset))[2] + view.zoom > 0) {
         xVector = view.projectVector([1, 0, 0]);
-        ctx.fillText(".1", xVector.x + width * 0.5 - 2.5 * pixelRatio, -xVector.y + height * 0.5 + 1 * pixelRatio);
+        ctx.fillText(".1", xVector[0] + width * 0.5 - 2.5 * pixelRatio, -xVector[1] + height * 0.5 + 1 * pixelRatio);
     }
-    if (view.projection === "orthogonal" || view.matrix.transformVector([-view.offset.x, 1 - view.offset.y, -view.offset.z])[2] + view.zoom > 0) {
+    if (view.projection === "orthogonal" || view.matrix.transformVector(Vector.subtraction([0, 1, 0], view.offset))[2] + view.zoom > 0) {
         yVector = view.projectVector([0, 1, 0]);
-        ctx.fillText(".1", yVector.x + width * 0.5 - 2.5 * pixelRatio, -yVector.y + height * 0.5 + 1 * pixelRatio);
+        ctx.fillText(".1", yVector[0] + width * 0.5 - 2.5 * pixelRatio, -yVector[1] + height * 0.5 + 1 * pixelRatio);
     }
-    if (view.projection === "orthogonal" || view.matrix.transformVector([-view.offset.x, -view.offset.y, 1 - view.offset.z])[2] + view.zoom > 0) {
+    if (view.projection === "orthogonal" || view.matrix.transformVector(Vector.subtraction([0, 0, 1], view.offset))[2] + view.zoom > 0) {
         zVector = view.projectVector([0, 0, 1]);
-        ctx.fillText(".1", zVector.x + width * 0.5 - 2.5 * pixelRatio, -zVector.y + height * 0.5 + 1 * pixelRatio);
+        ctx.fillText(".1", zVector[0] + width * 0.5 - 2.5 * pixelRatio, -zVector[1] + height * 0.5 + 1 * pixelRatio);
     }
 
 }
@@ -398,9 +412,9 @@ function drawFunction(canvas, begin, end, step = 0.1, view) {
     let lastValue = resultList[0];
     for (let j = 0; j < lastValue.length; j++) {
         // Real component line
-        drawCanvas3d(canvas, new Vector3D(begin, 0, 0), new Vector3D(begin, lastValue[j].re, 0), reStyle, view);
+        drawCanvas3d(canvas, [begin, 0, 0], [begin, lastValue[j].re, 0], reStyle, view);
         // Imaginary component line
-        drawCanvas3d(canvas, new Vector3D(begin, 0, 0), new Vector3D(begin, 0, lastValue[j].im), imStyle, view);
+        drawCanvas3d(canvas, [begin, 0, 0], [begin, 0, lastValue[j].im], imStyle, view);
     }
     
     // All values for the function are precalculated when the function updates, and stored in the resultList array.
@@ -413,15 +427,15 @@ function drawFunction(canvas, begin, end, step = 0.1, view) {
         // Each element in the result (for when there are several functions)
         for (let j = 0; j < result.length; j++) {
             // Function line
-            drawCanvas3d(canvas, new Vector3D(x - step, lastValue[j].re, lastValue[j].im), new Vector3D(x, result[j].re, result[j].im), style, view);
+            drawCanvas3d(canvas, [x - step, lastValue[j].re, lastValue[j].im], [x, result[j].re, result[j].im], style, view);
             
             // Real component line
-            drawCanvas3d(canvas, new Vector3D(x, 0, 0), new Vector3D(x, result[j].re, 0), reStyle, view); // Vertical re lines
-            drawCanvas3d(canvas, new Vector3D(x - step, lastValue[j].re, 0), new Vector3D(x, result[j].re, 0), reStyle, view);
+            drawCanvas3d(canvas, [x, 0, 0], [x, result[j].re, 0], reStyle, view); // Vertical re lines
+            drawCanvas3d(canvas, [x - step, lastValue[j].re, 0], [x, result[j].re, 0], reStyle, view);
     
             // Imaginary component line
-            drawCanvas3d(canvas, new Vector3D(x, 0, 0), new Vector3D(x, 0, result[j].im), imStyle, view); // Horizontal im lines
-            drawCanvas3d(canvas, new Vector3D(x - step, 0, lastValue[j].im), new Vector3D(x, 0, result[j].im), imStyle, view);
+            drawCanvas3d(canvas, [x, 0, 0], [x, 0, result[j].im], imStyle, view); // Horizontal im lines
+            drawCanvas3d(canvas, [x - step, 0, lastValue[j].im], [x, 0, result[j].im], imStyle, view);
         }
         
         lastValue = result;
@@ -447,8 +461,8 @@ function drawLabel(canvas, view) {
 
                 ctx.fillStyle = "#000000B0";
 
-                let pointX =  tracing.x + width  * 0.5;
-                let pointY = -tracing.y + height * 0.5;
+                let pointX =  tracing[0] + width  * 0.5;
+                let pointY = -tracing[1] + height * 0.5;
 
                 ctx.font = `${14 * pixelRatio}px sans-serif`;
 
@@ -484,14 +498,14 @@ var xOffset = document.getElementById("x-offset");
 var yOffset = document.getElementById("y-offset");
 var zOffset = document.getElementById("z-offset");
 
-var view = new View(40, 30, new Vector3D(xOffset.value, yOffset.value, zOffset.value), 5);
+var view = new View(40, 30, [xOffset.value, yOffset.value, zOffset.value].map(x => Number(x)), 5);
 
 // Contains all the values for the result of the function(s)
 var resultList = [];
 
 // Updates the view and canvas when an offset is changed
 function updateView() {
-    view.offset = new Vector3D(xOffset.value, yOffset.value, zOffset.value);
+    view.offset = [xOffset.value, yOffset.value, zOffset.value].map(x => Number(x));
     updateCanvas();
 }
 xOffset.oninput = updateView;
@@ -868,16 +882,16 @@ function setTracingPoint(clickX, clickY, canvas) {
     if (view.projection === "perspective") {
         unit = view.calculateClip([0, 0, 0], [1, 0, 0]);
     } else {
-        unit = [new Vector3D(0, 0, 0), new Vector3D(1, 0, 0)];
+        unit = [[0, 0, 0], [1, 0, 0]];
     }
 
-    let origin = view.projectVector(unit[0].toArray());
-    let end = view.projectVector(unit[1].toArray());
-    let angleUnit = Math.atan2(end.y - origin.y, end.x - origin.x);
-    let distanceUnit = Math.sqrt(Math.pow(end.y - origin.y, 2) + Math.pow(end.x - origin.x, 2));
+    let origin = view.projectVector(unit[0]);
+    let end = view.projectVector(unit[1]);
+    let angleUnit = Math.atan2(end[1] - origin[1], end[0] - origin[0]);
+    let distanceUnit = Math.sqrt(Math.pow(end[1] - origin[1], 2) + Math.pow(end[0] - origin[0], 2));
 
-    let angleClick = Math.atan2(clickY - origin.y, clickX - origin.x);
-    let distanceClick = Math.sqrt(Math.pow(clickY - origin.y, 2) + Math.pow(clickX - origin.x, 2));
+    let angleClick = Math.atan2(clickY - origin[1], clickX - origin[0]);
+    let distanceClick = Math.sqrt(Math.pow(clickY - origin[1], 2) + Math.pow(clickX - origin[0], 2));
 
     tracingPoint = distanceClick / distanceUnit * Math.cos(angleClick - angleUnit);
     updateCanvas();
