@@ -518,7 +518,7 @@ function updateFunctionValues(func) {
 
 
 /**
- * @member {Object[]}
+ * @member {Object[]} variableList
  * List of all variables, with e and pi as default.
  */
 let variableList = [
