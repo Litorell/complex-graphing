@@ -1,5 +1,5 @@
 /**
- * @file Main script of the complex graphing calculator.
+ * @file Used for parsing infix expressions, and converting them to postfix.
  * 
  * @copyright Oscar Litorell 2019
  */

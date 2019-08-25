@@ -9,7 +9,7 @@ How to use it is documented in the user-manual folder. There is an [English vers
 ## Documentation
 Documentation can be found here:
 
-https://oscarlitorell.github.io/complex-graphing/docs/
+[https://oscarlitorell.github.io/complex-graphing/docs/](https://oscarlitorell.github.io/complex-graphing/docs/)
 
 
 ### Copyright Oscar Litorell 2019
