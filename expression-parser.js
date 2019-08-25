@@ -21,7 +21,7 @@ class ExpressionParser {
     /**
      * Check if a character is a letter of the alphabet.
      * @param {string} char 
-     * @return {boolean}
+     * @returns {boolean}
      */
     static isAlpha(char) {
         return (char.toLowerCase() !== char.toUpperCase());
@@ -41,7 +41,7 @@ class ExpressionParser {
     /**
      * Get the token at a given index in an expression.
      * @param {string} expression - The expression that should be parsed.
-     * @param {*} index - The index where the token begins.
+     * @param {number} index - The index where the token begins.
      * @returns {string} The complete token.
      */
     static parseToken(expression, index) {
@@ -84,6 +84,7 @@ class ExpressionParser {
     /**
      * Check if a token is an operator.
      * @param {string} token 
+     * @returns {boolean}
      */
     static isOperator(token) {
         return (token in operations && operations[token].args === 2);
@@ -92,6 +93,7 @@ class ExpressionParser {
     /**
      * Check if a token is a number
      * @param {string} token 
+     * @returns {boolean}
      */
     static isNumber(token) {
         return (token === "i" || ExpressionParser.isNumeral(token[0]));

@@ -186,7 +186,7 @@ class View {
      * Cut a line such that only the section in front of the "camera" is rendered.
      * @param {number[]} lineStart - Vector for the start of the line. 
      * @param {number[]} lineEnd - Vector for the end of the line. 
-     * @returns {number[][]} - Array with the start and end vectors of the part of the line in front of the camera.
+     * @returns {number[][]} Array with the start and end vectors of the part of the line in front of the camera.
      */
     calculateClip(lineStart, lineEnd) {
         let vector1 = [lineStart[0] - this.offset[0], lineStart[1] - this.offset[1], lineStart[2] - this.offset[2]];

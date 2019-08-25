@@ -7,9 +7,9 @@
 
 /**
  * Holds an n * m matrix.
- * @property {number} m - The height of the matrix.
- * @property {number} n - The width of the matrix.
- * @property {Matrix} transpose - The transpose of the matrix.
+ * @property {number} m - The height of the matrix. (read-only)
+ * @property {number} n - The width of the matrix. (read-only)
+ * @property {Matrix} transpose - The transpose of the matrix. (read-only)
  */
 class Matrix {
     /**
