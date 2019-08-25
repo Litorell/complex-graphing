@@ -1,0 +1,168 @@
+<!--
+
+    Copyright Oscar Litorell 2019
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if (location.href[location.href.length-1] != "/" && window.location.href.split("?")[0].substr(-5) !== ".html") location.href += "/"</script> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Complex Calculator</title>
+	<link href="https://fonts.googleapis.com/css?family=Raleway:400,700|Roboto:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>How to use the complex graphing calculator</h1>
+    <h3>Sections</h3>
+    <ul>
+        <li><a href="#graph">The graphing window</a></li>
+        <li><a href="#function">The function window</a></li>
+        <li><a href="#variables">The variable window</a></li>
+        <li><a href="#worth-trying">Example functions worth trying</a></li>
+    </ul>
+
+    <h2 id="graph">The graphing window</h2>
+    <p>The graphing window is the section of the page containing the graph itself.</p>
+    <p>You can rotate the graph by clicking and dragging, as well as zoom by scrolling on it.</p>
+    <p>The graph has three axes, red, green and blue. The green axis shows the input value (i.e. x), and the two other axes show the output value. The red (vertical) axis shows the real part of the output while the blue (horizontal) axis shoes the imaginary part. The positive side of each graph is marked with a "1".</p>
+    <br>
+    <p>When rotating the graph, it initially rotates around the point (0, 0, 0) but this can be changed by changing the values for "x Offset", "Real Offset" and "Imaginary Offset".</p>
+    <p>You can also change the range of the graph with "Graph starts at" and "Graph ends at".</p>
+    <p>"Graph resolution" changes the resolution of the graph, i.e. the distance between each point.</p>
+    <p>To change the projection of the graph you can choose between perspective and orthographic mode. Perspective is more like what the human eye normally sees, but the orthographic mode makes parallel line remain parallel.</p>
+    <p>It's also possible to view the graph in full screen mode by clicking "Set fullscreen". ESC and F11 exit fullscreen mode.</p>
+
+
+    <h2 id="function">The function window</h2>
+    <p>The function window is the section of the page where you can enter functions.</p>
+    <p>The function window uses <a href="https://en.wikipedia.org/wiki/Reverse_Polish_notation">Reverse Polish Notation</a>, also known as Postfix notation, which is not what we normally use to write functions.</p>
+    <p>Simply put, it's like a mix between the way we normally write functions and programming.</p>
+    <p>It is based around each line containing either an operation (e.g. +, -, or *) or a number.</p>
+    <p>Instead of the operation sign being <strong>between</strong> the operands, it is <strong>after</strong> the operands, hence the name "Postfix". For instance, instead of writing</p>
+    <div class="code">
+        2 + x
+    </div>
+    <p>you write</p>
+    <div class="code">
+        2<br>x<br>+
+    </div>
+    <p>Most operations use the two last operands before the operation sign, which means that parentheses are not required (or used) since you can choose the order of operations yourself. Example:</p>
+    <div class="code">
+        (x + 4)<sup>2</sup>
+    </div>
+    <p>translates to</p>
+    <div class="code">
+        x<br>4<br>+<br>2<br>^
+    </div>
+    <p>You can imagine that the order is</p>
+    <div class="code">
+        ((x 4 +) 2 ^)
+    </div>
+    <p>Example 2:</p>
+    <div class="code">
+        2<sup>(x + 4)</sup>
+    </div>
+    <p>translates to</p>
+    <div class="code">
+        2<br>x<br>4<br>+<br>^
+    </div>
+    <p>You can imagine that the order is</p>
+    <div class="code">
+        (2 (x 4 +) ^)
+    </div>
+    <h3>The three types</h3>
+    <p>There are three different things you can write on each line: variables, constants and operations.</p>
+    <p>Variables are easy to understand, the only thing you have to write is the name of the variable, which can have one or more characters. More info under the <a href="#variables">Variable window</a> section. x is also considered to be a variable.</p>
+    <p>To store a value inside a variable you write = and then the name of the variable. For instance, to store the value of 2 + x in the variable a you write:</p>
+    <div class="code">
+        2<br>
+        x<br>
+        +<br>
+        =a
+    </div>
+    <p>These variables are not the same as the ones found in the variable window. The value of each <em>calculated</em> variable is unique for each value of x. You could say it's more like storing a function. To later use the variable, you only need to write the name of the variable again.</p>
+    <p>For constants, i.e. ordinary numbers, you only need to enter a number. A few examples:</p>
+    <div class="code">
+        2<br>
+        -4.67<br>
+        i<br>
+        -2.6 + 0.4i<br>
+        -i+5
+    </div>
+    <p>You don't need to worry about the order or white spacing.</p>
+    <p>The third type is operations, which there are a total of 10 of. These are:</p>
+    <ul>
+        <li><b>+</b> (adds the two last numbers)</li>
+        <li><b>-</b> (subtracts the last number from the second to last number)</li>
+        <li><b>*</b> (multiplies the two last numbers)</li>
+        <li><b>/</b> (divides the last number with the second to last number)</li>
+        <li><b>^</b> (raises the second to last number to the last number)</li>
+        <li><b>ln</b> (returns the natural logarithm of the last number)</li>
+        <li><b>abs</b> (returns the absolute value of the last number, i.e. the distance from zero)</li>
+        <li><b>sin</b> (the sine function)</li>
+        <li><b>cos</b> (the cosine function)</li>
+        <li><b>tan</b> (the tangent function)</li>
+    </ul>
+
+    <p>You can also comment out lines by starting the line with #. Empty lines are ignored as well.</p>
+
+    <h3>Multiple functions</h3>
+    <p>To display multiple functions in the same window, you only need to write them after each other. For instance, if you'd like to write the functions x+5 and 2<sup>x</sup> you could write:</p>
+
+    <div class="code">
+        x<br>
+        5<br>
+        +<br>
+        <br>
+        2<br>
+        x<br>
+        ^
+    </div>
+
+    <h2 id="variables">The variable window</h2>
+    <p>The variable window can be used to create and edit variables, without editing the function.</p>
+    <p>Initially, there are already two variables by default - e and pi.</p>
+    <p>There are two (or three) types of variables:</p>
+    <ul>
+        <li>constant - A constant has two values which you can enter, the real part and the imaginary.</li>
+        <li>range - Range variables have a minimum and maximum value, and a slider which adjusts the value of the variable. The graph is updated continously when moving the slider.</li>
+        <li>time - This type of variable is not yet implemented, but the idea is that it automatically adjusts the value of the variable continously.</li>
+    </ul>
+
+
+    <h2 id="worth-trying">Functions worth trying</h2>
+    <p>Here's a list of a few interesting things worth trying.</p>
+    <h3>x<sup>x</sup></h3>
+    <p>The function x<sup>x</sup>, which is written as:</p>
+    <div class="code">
+        x<br>
+        x<br>
+        ^
+    </div>
+    <br>
+    <h3>x<sup>n</sup></h3>
+    <p>You might have noticed that all x<sup>n</sup> functions with even values of n return positive numbers for negative values of x and look like a "u", while negative values of n return negative values and look more like a backwards "s". What would happen for values in between?</p>
+    <p>Try writing the function</p>
+    <div class="code">
+        x<br>
+        n<br>
+        ^
+    </div>
+    <p>Add a variable with the name "n", and select the type "range". Set "min" to 1 and "max" to 4. What happens when you adjust the slider?</p>
+    <br>
+    <h3>Euler's formula</h3>
+    <p>You might have heard about <a href="https://en.wikipedia.org/wiki/Euler%27s_formula">Euler's formula</a>, e<sup>ix</sup>. How does it actually look? You can try buy entering the function</p>
+    <div class="code">
+        e<br>
+        i<br>
+        x<br>
+        *<br>
+        ^
+    </div>
+    <p>At this point it could also be a good idea to change the range of the function, and set the start and end points to something like -10 and 10. Look at the real and imaginary part. What functions do they look like?</p>
+</body>
+</html>
