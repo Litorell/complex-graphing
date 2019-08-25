@@ -39,8 +39,8 @@ class Complex {
 
     /**
      * Create a complex number from polar coordinates.
-     * @param {*} r - Distance from 0 (absolute value)
-     * @param {*} theta - Angle from the number to 0 + 0i to 1 + 0i
+     * @param {number} r - Distance from 0 (absolute value).
+     * @param {number} theta - Angle from the number to 0 + 0i to 1 + 0i.
      * @returns {Complex}
      */
     static fromPolar(r, theta) {
@@ -66,7 +66,7 @@ class Complex {
     }
 
     /**
-     * Subtract one number from another
+     * Subtract one number from another.
      * @param {number|Complex} num1 
      * @param {number|Complex} num2 
      * @returns {Complex}
@@ -82,7 +82,7 @@ class Complex {
     }
 
     /**
-     * Multiply two numbers
+     * Multiply two numbers.
      * @param {number|Complex} num1 
      * @param {number|Complex} num2 
      * @returns {Complex}
@@ -103,7 +103,7 @@ class Complex {
     }
 
     /**
-     * Divide one number with another
+     * Divide one number with another.
      * @param {number|Complex} num1 
      * @param {number|Complex} num2 
      * @returns {Complex}
@@ -116,7 +116,7 @@ class Complex {
     }
 
     /**
-     * Natural logarithm
+     * Natural logarithm.
      * @param {number|Complex} num1 
      * @returns {Complex}
      */
@@ -127,7 +127,7 @@ class Complex {
     }
 
     /**
-     * Sine
+     * Sine.
      * @param {number|Complex} num1 
      * @returns {Complex}
      */
@@ -141,7 +141,7 @@ class Complex {
     }
 
     /**
-     * Cosine
+     * Cosine.
      * @param {number|Complex} num1 
      * @returns {Complex}
      */
@@ -155,7 +155,7 @@ class Complex {
     }
 
     /**
-     * Tangent
+     * Tangent.
      * @param {number|Complex} num1 
      * @returns {Complex}
      */
@@ -165,7 +165,7 @@ class Complex {
     }
 
     /**
-     * Inverse sine / arcsin
+     * Inverse sine / arcsin.
      * @param {number|Complex} num1 
      * @returns {Complex}
      */
@@ -178,7 +178,7 @@ class Complex {
     }
 
     /**
-     * Inverse cosine / arccos
+     * Inverse cosine / arccos.
      * @param {number|Complex} num1 
      * @returns {Complex}
      */
@@ -189,7 +189,7 @@ class Complex {
     }
 
     /**
-     * Inverse tangent / arctan
+     * Inverse tangent / arctan.
      * @param {number|Complex} num1 
      * @returns {Complex}
      */
@@ -203,7 +203,7 @@ class Complex {
     }
 
     /**
-     * Raise one number to another
+     * Raise one number to another.
      * @param {number|Complex} num1 
      * @param {number|Complex} num2 
      * @returns {Complex}
@@ -237,7 +237,7 @@ class Complex {
     }
 
     /**
-     * To Polar coordinates (radius and angle)
+     * To Polar coordinates (radius and angle).
      * @param {Complex} num 
      * @returns {Object} {"r": r, "theta": theta}
      */
