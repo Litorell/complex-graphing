@@ -1,6 +1,10 @@
 # Hur man använder den komplexa grafräknaren
 [English version](https://github.com/OscarLitorell/complex-graphing/blob/master/user-manual/english.md)
 
+[Länk till räknaren](https://oscarlitorell.github.io/complex-graphing/)
+
+[GitHub repository](https://github.com/OscarLitorell/complex-graphing)
+
 ### Delar
 
 *   [Graffönstret](#graffönstret)
@@ -28,141 +32,104 @@ Det går även att se grafen i helskärmsläge genom att klicka på "Set fullscr
 
 ## Funktionsfönstret
 
-Funktionsfönstret är den del av sidan där man kan skriva in en funktion/funktioner.
+Funktionsfönstret är den del av sidan där man kan skriva in funktioner.
 
-Funktionsfönstret använder sig inte av det sätt att skriva funktioner som vi normalt använder utan använder sig istället av ett sätt som kallas för [omvänd polsk notation](https://sv.wikipedia.org/wiki/Omv%C3%A4nd_polsk_notation), även kallat "Reverse Polish notation" (RPN) och "Postfix Notation".
+Det finns totalt 13 funktioner:
 
-Kort sagt kan man säga att det är en blandning av att skriva funktioner på det sätt vi är vana vid och att programmera.
+*   **+** (addition)
+*   **-** (subtraktion)
+*   **\*** (multiplikation)
+*   **/** (division)
+*   **^** (exponenter)
+*   **ln()** (naturliga logaritmen)
+*   **abs()** (absolutvärdet av ett komplext tal, d.v.s. avståndet till 0.)
+*   **sin()** (sinus)
+*   **cos()** (cosinus)
+*   **tan()** (tangens)
+*   **asin()** (arcsin, sin<sup>-1</sup>)
+*   **acos()** (arccos, cos<sup>-1</sup>)
+*   **atan()** (arctan, tan<sup>-1</sup>)
 
-Det bygger på att varje rad antingen har en operation (t.ex. +, - eller *) eller ett tal.
-
-Istället för att ha operationstecknet **mellan** operanderna har man det istället **efter**, därav namnet "Postfix". Istället för att t.ex. skriva
-
-```
-2 + x
-```
-
-skriver man istället
-
-```
-2  
-x  
-+
-```
-
-De flesta operationerna använder sig av de två operanderna innan operationstecknet, vilket innebär att man inte behöver (eller kan) använda parenteser eftersom man helt själv kan bestämma vilken ordning funktionens operationer skall beräknas. Exempel:
+Räknaren fungerar som förväntat, man kan skriva ett vanligt matematiskt uttryck och räknaren beräknar svaret för alla värden på x. Exempel:
 
 ```
-(x + 4)^2
+2 + sin(x)
 ```
-
-blir
-
-```
-x  
-4  
-+  
-2  
-^
-```
-
-Man kan alltså tänka att ordningen blir
-
-```
-((x 4 +) 2 ^)
-```
-
-Exempel 2:
-
-```
-2^(x + 4)
-```
-
-blir
-
-```
-2  
-x  
-4  
-+  
-^
-```
-
-Man kan alltså tänka att ordningen blir
-
-```
-(2 (x 4 +) ^)
-```
-
-### De tre typerna
-
-Det finns tre olika saker man kan skriva på varje rad: variabler, konstanter och operationer.
-
-Variabler är enkla, det enda man behöver skriva på raden är variablens namn, som kan ha ett eller flera tecken. Se mer information under rubriken ["Variabelfönstret"](#variables). x räknas också som en variabel.
-
-För att spara ett värde i en variabel skriver man = och namnet på variabeln. För att t.ex. spara värdet på 2 + x i varabeln a skriver man:
-
-```
-2  
-x  
-+  
-=a
-```
-
-Dessa variabler är inte samma sorts variabler som används i variabelfönstret. Värdet på varje _beräknad_ variabel är unikt för varje x-värde. Man kan alltså säga att det är mer likt att spara en funktion. För att använda variabeln skriver man bara variablens namn igen.
-
-För konstanter, d.v.s. vanliga tal behöver man bara skriva in ett tal. Några exempel:
-
-```
-2  
--4.67  
-i  
--2.6 + 0.4i  
--i+5
-```
-
-Man behöver alltså inte oroa sig över mellanslag eller ordning.
-
-Den tredje typen är operationer, som det i nuläget finns 10 av. Dessa är:
-
-*   **+** (adderar de två föregående talen)
-*   **-** (subtraherar det föregående talet från talet två positioner innan)
-*   **\*** (multiplicerar de två föregående talen)
-*   **/** (dividerar talet två positioner innan med det föregående talet)
-*   **^** (höjer upp talet två positioner innan med det föregående talet)
-*   **ln** (ger naturliga logaritmen på det föregående talet)
-*   **abs** (ger absolutvärdet på det föregående talet, d.v.s. avståndet mellan talet och noll)
-*   **sin** (sinusfunktionen)
-*   **cos** (cosinusfunktionen)
-*   **tan** (tangensfunktionen)
-
-Det går även att kommentera ut rader genom att skriva # längst fram. Tomma rader ignoreras också.
 
 ### Flera funktioner
 
 För att visa flera funktioner på samma graf behöver du bara skriva dem efter varandra. Om man t.ex. vill skriva funktionerna x+5 och 2<sup>x</sup> kan man skriva:
 
 ```
-x  
-5  
-+  
+x + 5 
+2 ^ x
+```
 
-2  
-x  
-^
+Det går att kommentera ut rader genom att skriva # längst fram. Tomma rader ignoreras också.
+
+### Lagra variabler
+
+Det går att lagra resultaten från en funktion. För att spara ett värde i en variabel skriver man = och namnet på variabeln. För att t.ex. spara värdet på 2 + x i varabeln a skriver man:
+
+```
+2 + x  
+=a
+```
+
+Dessa variabler är inte samma sorts variabler som används i variabelfönstret. Värdet på varje _beräknad_ variabel är unikt för varje x-värde. Man kan alltså säga att det är mer likt att spara en funktion. För att använda variabeln skriver man bara variablens namn i ett senare uttryck. Exempel:
+
+```
+2 + x
+=a
+e ^ a * a
+```
+
+motsvarar att skriva
+
+```
+e ^ (2 + x) * (2 + x)
+```
+
+### Omvänd polsk notation
+Det går även att använda [omvänd polsk notation](https://sv.wikipedia.org/wiki/Omv%C3%A4nd_polsk_notation), även kallat "Reverse Polish notation" (RPN) och "Postfix Notation" för att skriva funktioner. Detta gör man genom att skriva sina tal, variabler och operationer på separata rader efter varandra. Funktionen
+
+```
+2 + sin(x)
+```
+
+skrivs istället som
+
+```
+2
+x
+sin
++
+```
+
+Det går även att blanda RPN och infix. Ett exempel:
+
+```
+3 * x
+2 ^ x
++
+```
+
+motsvarar att skriva
+
+```
+(3 * x) + (2 ^ x)
 ```
 
 ## Variabelfönstret
 
-Variabelfönstret kan användas för att skapa och justera variabler utan att ändra på funktionen.
+Variabelfönstret kan användas för att skapa och justera variabler och konstanter utan att ändra på funktionen.
 
 Det finns till att börja med redan två variabler, e och pi.
 
-Det finns två (eller tre) olika sorters variabler:
+Det finns två olika sorters variabler:
 
 *   constant - En konstant har ett värde som kan kan skriva in. Det går att specificera både den reella och imaginära delen.
 *   range - Range-variabler har ett min- och max-värde, och en slider där man kan justera värdet på variabeln. Grafen uppdateras kontinuerligt när man justerar slidern, vilket kan vara användbart.
-*   time - Denna variabeltyp är ej implementerad än, men tanken är att värdet på en variabel automatiskt ska ändras kontinuerligt.
 
 ## Exempelfunktioner du kan testa
 
@@ -173,9 +140,7 @@ Här är en lista med några intressanta saker man kan testa.
 Funktionen x<sup>x</sup>, som skrivs som:
 
 ```
-x  
-x  
-^
+x ^ x
 ```
 
 ### x<sup>n</sup>
@@ -185,9 +150,7 @@ Du har säkert märkt att alla x<sup>n</sup>-funktioner med jämna n-värden ger
 Testa att skriva in funktionen
 
 ```
-x  
-n  
-^
+x ^ n
 ```
 
 Lägg sedan till en variabel med namnet "n" och välj typen "range". Sätt "min" till 1 och "max" till "4". Vad händer när man ändrar på slidern?
@@ -197,11 +160,7 @@ Lägg sedan till en variabel med namnet "n" och välj typen "range". Sätt "min"
 Du kanske har hört talas om [Eulers formel](https://sv.wikipedia.org/wiki/Eulers_formel), e<sup>ix</sup>. Hur ser den egentligen ut? Du kan testa genom att skriva funktionen
 
 ```
-e  
-i  
-x  
-*  
-^
+e ^ (i * x)
 ```
 
 I detta läge kan det också vara bra att öka funktionens definitionsmängd i båda riktningarna, t.ex. till -10 och 10\. Kolla på den reella respektiva imaginära delen. Vilka funktioner ser det ut som?

@@ -1,6 +1,10 @@
 # How to use the complex graphing calculator
 [Swedish version](https://github.com/OscarLitorell/complex-graphing/blob/master/user-manual/swedish.md)
 
+[Link to the calculator](https://oscarlitorell.github.io/complex-graphing/)
+
+[GitHub repository](https://github.com/OscarLitorell/complex-graphing)
+
 ### Sections
 
 *   [The graphing window](#the-graphing-window)
@@ -28,141 +32,103 @@ It's also possible to view the graph in full screen mode by clicking "Set fullsc
 
 ## The function window
 
-The function window is the section of the page where you can enter functions.
+The function window is the section of the page where you can enter functions. 
 
-The function window uses [Reverse Polish Notation](https://en.wikipedia.org/wiki/Reverse_Polish_notation), also known as Postfix notation, which is not what we normally use to write functions.
+There is a total of 13 operations:
 
-Simply put, it's like a mix between the way we normally write functions and programming.
+*   **+** (addition)
+*   **-** (subtraction)
+*   **\*** (multiplication)
+*   **/** (division)
+*   **^** (exponents)
+*   **ln()** (the natural logarithm)
+*   **abs()** (the absolute value of a complex number, i.e. the distance from zero)
+*   **sin()** (sine)
+*   **cos()** (cosine)
+*   **tan()** (tangent)
+*   **asin()** (inverse sine, arcsin, sin<sup>-1</sup>)
+*   **acos()** (inverse cosine, arccos, cos<sup>-1</sup>)
+*   **atan()** (inverse tangent, arctan, tan<sup>-1</sup>)
 
-It is based around each line containing either an operation (e.g. +, -, or *) or a number.
-
-Instead of the operation sign being **between** the operands, it is **after** the operands, hence the name "Postfix". For instance, instead of writing
-
-```
-2 + x
-```
-
-you write
-
-```
-2  
-x  
-+
-```
-
-Most operations use the two last operands before the operation sign, which means that parentheses are not required (or used) since you can choose the order of operations yourself. Example:
+It works as you would expect, you can write a normal mathematical expression and the calculator will evaluate it for all values of x. Example:
 
 ```
-(x + 4)^2
+2 + sin(x)
 ```
-
-translates to
-
-```
-x  
-4  
-+  
-2  
-^
-```
-
-You can imagine that the order is
-
-```
-((x 4 +) 2 ^)
-```
-
-Example 2:
-
-```
-2^(x + 4)
-```
-
-translates to
-
-```
-2  
-x  
-4  
-+  
-^
-```
-
-You can imagine that the order is
-
-```
-(2 (x 4 +) ^)
-```
-
-### The three types
-
-There are three different things you can write on each line: variables, constants and operations.
-
-Variables are easy to understand, the only thing you have to write is the name of the variable, which can have one or more characters. More info under the [Variable window](#variables) section. x is also considered to be a variable.
-
-To store a value inside a variable you write = and then the name of the variable. For instance, to store the value of 2 + x in the variable a you write:
-
-```
-2  
-x  
-+  
-=a
-```
-
-These variables are not the same as the ones found in the variable window. The value of each _calculated_ variable is unique for each value of x. You could say it's more like storing a function. To later use the variable, you only need to write the name of the variable again.
-
-For constants, i.e. ordinary numbers, you only need to enter a number. A few examples:
-
-```
-2  
--4.67  
-i  
--2.6 + 0.4i  
--i+5
-```
-
-You don't need to worry about the order or white spacing.
-
-The third type is operations, which there are a total of 10 of. These are:
-
-*   **+** (adds the two last numbers)
-*   **-** (subtracts the last number from the second to last number)
-*   **\*** (multiplies the two last numbers)
-*   **/** (divides the last number with the second to last number)
-*   **^** (raises the second to last number to the last number)
-*   **ln** (returns the natural logarithm of the last number)
-*   **abs** (returns the absolute value of the last number, i.e. the distance from zero)
-*   **sin** (the sine function)
-*   **cos** (the cosine function)
-*   **tan** (the tangent function)
-
-You can also comment out lines by starting the line with #. Empty lines are ignored as well.
 
 ### Multiple functions
 
 To display multiple functions in the same window, you only need to write them after each other. For instance, if you'd like to write the functions x+5 and 2<sup>x</sup> you could write:
 
 ```
-x  
-5  
-+  
+x + 5 
+2 ^ x
+```
 
-2  
-x  
-^
+You can comment out lines by starting the line with #. Empty lines are ignored as well.
+
+### Storing variables
+
+It is possible to store results of a function. To store a value inside a variable you write = on the next line and then the name of the variable. For instance, to store the value of 2 + x in the variable a you write:
+
+```
+2 + x  
+=a
+```
+
+These variables are not the same as the ones found in the variable window. The value of each _calculated_ variable is unique for each value of x. You could say it's more like storing a function. To use the variable, just use the variable as part of a later expression. Example:
+
+```
+2 + x
+=a
+e ^ a * a
+```
+
+is equivalent to writing
+
+```
+e ^ (2 + x) * (2 + x)
+```
+
+### Reverse Polish Notation
+In addition, it is possible to use [Reverse Polish Notation](https://en.wikipedia.org/wiki/Reverse_Polish_notation) (also known as Postfix notation) to write functions. You do this by writing your numbers, variables and operators on separate lines after each other. The function
+```
+2 + sin(x)
+```
+
+would be written as
+
+```
+2
+x
+sin
++
+```
+
+You can also mix writing in RPN and infix. An example:
+
+```
+3 * x
+2 ^ x
++
+```
+
+is equivalent to writing
+
+```
+(3 * x) + (2 ^ x)
 ```
 
 ## The variable window
 
-The variable window can be used to create and edit variables, without editing the function.
+The variable window can be used to create and edit variables and constants, without editing the function.
 
 Initially, there are already two variables by default - e and pi.
 
-There are two (or three) types of variables:
+There are two types of variables:
 
 *   constant - A constant has two values which you can enter, the real part and the imaginary.
 *   range - Range variables have a minimum and maximum value, and a slider which adjusts the value of the variable. The graph is updated continously when moving the slider.
-*   time - This type of variable is not yet implemented, but the idea is that it automatically adjusts the value of the variable continously.
 
 ## Functions worth trying
 
@@ -173,9 +139,7 @@ Here's a list of a few interesting things worth trying.
 The function x<sup>x</sup>, which is written as:
 
 ```
-x  
-x  
-^
+x ^ x
 ```
 
 ### x<sup>n</sup>
@@ -185,9 +149,7 @@ You might have noticed that all x<sup>n</sup> functions with even values of n re
 Try writing the function
 
 ```
-x  
-n  
-^
+x ^ n
 ```
 
 Add a variable with the name "n", and select the type "range". Set "min" to 1 and "max" to 4\. What happens when you adjust the slider?
@@ -197,11 +159,7 @@ Add a variable with the name "n", and select the type "range". Set "min" to 1 an
 You might have heard about [Euler's formula](https://en.wikipedia.org/wiki/Euler%27s_formula), e<sup>ix</sup>. How does it actually look? You can try by entering the function
 
 ```
-e  
-i  
-x  
-*  
-^
+e ^ (i * x)
 ```
 
 At this point it could also be a good idea to change the range of the function, and set the start and end points to something like -10 and 10\. Look at the real and imaginary part. What functions do they look like?
