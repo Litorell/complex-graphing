@@ -17,6 +17,6 @@
     "opts": {
         "destination": "docs",
         "readme": "README.md",
-        "template": "C:/Users/Oscar/Desktop/Programmering/minami-master"
+        "template": "minami"
     }
 }

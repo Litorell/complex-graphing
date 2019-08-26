@@ -13,24 +13,43 @@
  */
 class Matrix {
     /**
-     * Can either be constructed with an array of arrays (2D array) or two dimensions and a default value.
-     * @param {number[][]} [matrix] 
-     * @param {number[]} [size] 
-     * @param {number} [value] 
+     * Is constructed with an array of arrays.
+     * @param {number[][]} [matrix] - An array of arrays representing the matrix.
+     * @example
+     * new Matrix([
+     *     [1, 0, 0],
+     *     [0, 1, 0],
+     *     [0, 0, 1]
+     * ]);
+     *  
      */
-    constructor(matrix=null, size=null, value=0) {
-        if (matrix !== null) {
-            this.matrix = matrix;
-        } else {
-            this.matrix = []
-            for (let i = 0; i < size[0]; i++) {
-                this.matrix.push([]);
-                for (let j = 0; j < size[1]; j++) {
-                    this.matrix[i].push(value)
-                }
+    constructor(matrix) {
+        this.matrix = matrix;
+    }
 
+    
+    /**
+     * Create a matrix with a given width and height, and an optional value to fill the matrix with.
+     * @param {number} width - The width (n) of the matrix.
+     * @param {number} height - The height (m) of the matrix.
+     * @param {number} [value] - The value to fill the matrix with.
+     * @returns {Matrix}
+     * @example
+     * Matrix.fromSize(3, 2, 1);
+     * // returns new Matrix([
+     * //     [1, 1, 1],
+     * //     [1, 1, 1]
+     * // ])
+     */
+    static fromSize(width, height, value=0) {
+        let matrix = []
+        for (let i = 0; i < height; i++) {
+            matrix.push([]);
+            for (let j = 0; j < width; j++) {
+                matrix[i].push(value)
             }
         }
+        return new Matrix(matrix);
     }
 
     // Height of the matrix
@@ -59,7 +78,7 @@ class Matrix {
 
     /**
      * Applies the matrix's transformation to a vector.
-     * @param {number[]} vector 
+     * @param {number[]} vector - The vector to transform
      * @returns {number[]} The transformed vector.
      */
     transformVector(vector) {
@@ -99,7 +118,7 @@ class Matrix {
     static multiplication(matrix1, matrix2) {
         let m = matrix1.matrix.length;
         let n = matrix2.matrix[0].length;
-        let result = new Matrix(null, [m, n]);
+        let result = Matrix.fromSize(n, m);
 
         for (let i = 0; i < n; i++) {
             let vector = new Array(n);
