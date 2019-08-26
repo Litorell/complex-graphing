@@ -233,7 +233,8 @@ class Complex {
      * @returns {Complex}
      */
     static abs(num) {
-        return new Complex(Complex.toPolar(num).r);
+        if (num.constructor !== Complex) return new Complex(Math.abs(num));
+        return new Complex(Math.pow(Math.pow(num.re, 2) + Math.pow(num.im, 2), 0.5));
     }
 
     /**
@@ -242,7 +243,7 @@ class Complex {
      * @returns {Object} {"r": r, "theta": theta}
      */
     static toPolar(num) {
-        let r = Math.pow(Math.pow(num.re, 2) + Math.pow(num.im, 2), 0.5);
+        let r = Complex.abs(num).re;
         let theta = Math.atan2(num.im, num.re);
         return {
             r: r,

@@ -24,6 +24,9 @@ class LineStyle {
  * Holds information about the viewport perspective and position relative to the coordinate system.
  * @property {number} longitude - Longitude angle (degrees) 
  * @property {number} latitude - Latitude angle (degrees) 
+ * @property {string} projection - Either "perspective" or "orthogonal".
+ * @property {number[]} offset - Coordinates for center of rotation.
+ * @property {number} zoom - Zoom for perspective mode this equates to distance from the center of rotation).
  */
 class View {
     /**
@@ -175,8 +178,8 @@ class View {
 
         let transformed = this.matrix.transformVector(vector);
 
-        let x = transformed[0] / this.zoom * 600;
-        let y = transformed[1] / this.zoom * 600;
+        let x = transformed[0] / this.zoom * 900;
+        let y = transformed[1] / this.zoom * 900;
         
         return [x, y];
     }
@@ -870,7 +873,8 @@ addVarElementBtn.addEventListener("click", addVariableElement);
 // When the user scrolls/zooms over the graph
 mainCanvas.addEventListener("wheel", function(event) {
     event.preventDefault(); // Prevent scrolling
-    view.zoom = Math.pow(10, Math.log10(view.zoom) + event.deltaY * 0.001);
+    view.zoom *= Math.pow(10, event.deltaY * 0.001);
+    
     updateCanvas();
     
 });
@@ -1116,6 +1120,81 @@ function clickController (event) {
 mainCanvas.addEventListener("mousedown", clickController);
 
 
+
+// Blender keypad view shortcuts
+document.addEventListener("keydown", event => {
+    let key = event.key;
+    
+    let keys = "0123456789-+";
+
+    let focused = Boolean(document.querySelector(":focus"));
+    
+    if (!focused && keys.includes(key) && event.code.substring(0, 6) == "Numpad") {
+        switch (key) {
+            case "0":
+                view.offset = [0, 0, 0];
+            break;
+
+            case "1":
+                view.latitude = 0;
+                view.longitude = 0;
+            break;
+
+            case "2":
+                view.latitude -= 15;
+            break;
+
+            case "3":
+                view.latitude = 0;
+                view.longitude = 90;
+            break;
+
+            case "4":
+                view.longitude -= 15;
+            break;
+
+            case "5":
+                let projection = view.projection;
+                if (projection == "perspective") {
+                    projection = "orthogonal";
+                } else {
+                    projection = "perspective";
+                }
+
+                document.getElementById("projection").value = projection;
+
+                view.projection = projection;
+            break;
+
+            case "6":
+                view.longitude += 15;
+            break;
+
+            case "7":
+                view.latitude = 90;
+                view.longitude = 0;
+            break;
+
+            case "8":
+                view.latitude += 15;
+            break;
+
+            case "9":
+                view.latitude = 0;
+                view.longitude = 180;
+            break;
+            
+            case "-":
+                view.zoom *= Math.pow(10, 0.1)
+            break;
+            
+            case "+":
+                view.zoom *= Math.pow(10, -0.1)
+            break;
+        }
+        updateCanvas();
+    }
+});
 
 /**
  * Check if the user is viewing the graph in fullscreen mode.
