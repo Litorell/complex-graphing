@@ -12,23 +12,44 @@
 *   [The variable window](#the-variable-window)
 *   [Functions worth trying](#functions-worth-trying)
 
+<hr>
+
 ## The graphing window
 
 The graphing window is the section of the page containing the graph itself.
 
-You can rotate the graph by clicking and dragging, as well as zoom by scrolling on it.
-
 The graph has three axes, red, green and blue. The green axis shows the input value (i.e. x), and the two other axes show the output value. The red (vertical) axis shows the real part of the output while the blue (horizontal) axis shoes the imaginary part. The positive side of each graph is marked with a "1".
 
-When rotating the graph, it initially rotates around the point (0, 0, 0) but this can be changed by changing the values for "x Offset", "Real Offset" and "Imaginary Offset".
+### Mouse Controls
 
-You can also change the range of the graph with "Graph starts at" and "Graph ends at".
+*   **Clicking and dragging** moves the graph around translationally.
+*   **CTRL-clicking and dragging** rotates the graph around.
+*   **Shift-clicking and dragging** moves the tracing point.
+*   **Scrolling** zooms in and out.
+*   **CTRL-Q** snaps the viewing angle to the closest 45 degrees (both longitudinally and laterally).
+*   **CTRL-I** snaps the center of rotation to an integer position.
 
-"Graph resolution" changes the resolution of the graph, i.e. the distance between each point.
+### Touch Controls
 
-To change the projection of the graph you can choose between perspective and orthographic mode. Perspective is more like what the human eye normally sees, but the orthographic mode makes parallel line remain parallel.
+*   **Dragging with one finger** rotates the graph around.
+*   **Dragging with two fingers** moves the graph around translationally.
+*   **Pinching with two fingers** zooms in and out.
 
-It's also possible to view the graph in full screen mode by clicking "Set fullscreen". ESC and F11 exit fullscreen mode.
+### Buttons and fields
+
+**Trace x** is used to see the exact output values for a input value.
+
+**Graph starts at** and **Graph ends at** control the range/domain of the graph.
+
+**Graph resolution** controls the resolution of the graph, i.e. the distance between each point.
+
+**Perspective/Orthogonal** determines the projection of the window. Perspective is more like what the human eye normally sees, but the orthogonal mode makes parallel line remain parallel.
+
+**Set fullscreen** displays the graph in full screen mode. ESC and F11 exit fullscreen mode.
+
+**x Offset**, **Real Offset** and **Imaginary Offset** are used to translate the graph manually.
+
+<hr>
 
 ## The function window
 
@@ -119,6 +140,8 @@ is equivalent to writing
 (3 * x) + (2 ^ x)
 ```
 
+<hr>
+
 ## The variable window
 
 The variable window can be used to create and edit variables and constants, without editing the function.
@@ -129,6 +152,8 @@ There are two types of variables:
 
 *   constant - A constant has two values which you can enter, the real part and the imaginary.
 *   range - Range variables have a minimum and maximum value, and a slider which adjusts the value of the variable. The graph is updated continously when moving the slider.
+
+<hr>
 
 ## Functions worth trying
 

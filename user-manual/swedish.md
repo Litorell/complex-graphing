@@ -12,23 +12,44 @@
 *   [Variabelfönstret](#variabelfönstret)
 *   [Exempelfunktioner du kan testa](#exempelfunktioner-du-kan-testa)
 
+<hr>
+
 ## Graffönstret
 
 Graffönstret är den del av sidan där man kan se självaste grafen, som utgör den största delen av fönstret.
 
-Det går att rotera grafen genom att klicka och dra på den, samt att zooma in genom att scrolla ovanpå den.
-
 Grafen har tre axlar, röd, grön och blå. Den gröna axeln visar in-värdet (d.v.s. x), och de två andra axlarna visar utvärdet. Den röda (lodräta) axeln visar utvärdets reella del medan den blåa (vågräta) axeln visar utvärdets imaginära del. Den positiva sidan av respektive axel är markerad med en 1:a.
 
-När man roterar grafen roterar den till att börja med alltid runt punkten (0, 0, 0) men detta går att ändra på genom att ändra värdena för "x Offset", "Real Offset" och "Imaginary Offset".
+### Muskontroller
 
-Det går att ändra funktionens definitionsmängd med värdena för "Graph starts at" och "Graph ends at".
+*   **Klicka och dra** förflyttar grafen.
+*   **CTRL-klicka och dra** roterar grafen.
+*   **Shift-klicka och dra** flyttar trace-rutan.
+*   **Skrollning** zoomar in och ut.
+*   **CTRL-Q** roterar visningsvinkeln till de närmaste 45 graderna.
+*   **CTRL-I** flyttar grafen till en heltalsposition.
 
-Det går också att ändra vilken grafens upplösning med "Graph resolution", som är längden på steget mellan de olika punkterna som beräknas.
+### Touch-kontroller
 
-För att ändra grafens projektion kan man välja mellan "perspective" och "orthographic". Perspektivläget är mer likt det vi är vana vid att se, medan det ortografiska läget gör att parallella linjer också visas parallella och att linjer längre bort inte blir mindre.
+*   **Dra med ett finger** roterar grafen.
+*   **Dra med två fingrar** förflyttar grafen.
+*   **Nypa med två fingrar** zoomar in och ut.
 
-Det går även att se grafen i helskärmsläge genom att klicka på "Set fullscreen". Tryck på ESC eller F11 för att återgå till det vanliga läget.
+### Knappar och textrutor
+
+**Trace x** används för att se funktionens exakta resultat för ett givet invärde.
+
+**Graph starts at** och **Graph ends at** bestämmer funktionens definitionsmängd.
+
+**Graph resolution** bestämmer grafens upplösning, d.v.s längden på stegen mellan punkterna som beräknas.
+
+**Perspective/Orthogonal** bestämmer fönstrets projektions. Perspektivläget är mer likt det vi är vana vid att se, medan det ortogonala läget gör att parallella linjer alltid visas parallella och att linjer längre bort inte blir mindre.
+
+**Set fullscreen** visar grafen i helskärmsläge. Tryck på ESC eller F11 för att återgå till det vanliga läget.
+
+**x Offset**, **Real Offset** och **Imaginary Offset** används för att förflytta grafen manuellt.
+
+<hr>
 
 ## Funktionsfönstret
 
@@ -120,6 +141,8 @@ motsvarar att skriva
 (3 * x) + (2 ^ x)
 ```
 
+<hr>
+
 ## Variabelfönstret
 
 Variabelfönstret kan användas för att skapa och justera variabler och konstanter utan att ändra på funktionen.
@@ -130,6 +153,8 @@ Det finns två olika sorters variabler:
 
 *   constant - En konstant har ett värde som kan kan skriva in. Det går att specificera både den reella och imaginära delen.
 *   range - Range-variabler har ett min- och max-värde, och en slider där man kan justera värdet på variabeln. Grafen uppdateras kontinuerligt när man justerar slidern, vilket kan vara användbart.
+
+<hr>
 
 ## Exempelfunktioner du kan testa
 
