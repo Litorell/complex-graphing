@@ -43,7 +43,7 @@ Grafen har tre axlar, röd, grön och blå. Den gröna axeln visar in-värdet (d
 
 **Graph resolution** bestämmer grafens upplösning, d.v.s längden på stegen mellan punkterna som beräknas.
 
-**Perspective/Orthogonal** bestämmer fönstrets projektions. Perspektivläget är mer likt det vi är vana vid att se, medan det ortogonala läget gör att parallella linjer alltid visas parallella och att linjer längre bort inte blir mindre.
+**Projection** bestämmer fönstrets projektions. Perspektivläget är mer likt det vi är vana vid att se, medan det ortogonala läget gör att parallella linjer alltid visas parallella och att linjer längre bort inte blir mindre.
 
 **Set fullscreen** visar grafen i helskärmsläge. Tryck på ESC eller F11 för att återgå till det vanliga läget.
 

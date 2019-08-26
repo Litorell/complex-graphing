@@ -43,7 +43,7 @@ The graph has three axes, red, green and blue. The green axis shows the input va
 
 **Graph resolution** controls the resolution of the graph, i.e. the distance between each point.
 
-**Perspective/Orthogonal** determines the projection of the window. Perspective is more like what the human eye normally sees, but the orthogonal mode makes parallel line remain parallel.
+**Projection** determines the projection of the window. Perspective is more like what the human eye normally sees, but the orthogonal mode makes parallel line remain parallel.
 
 **Set fullscreen** displays the graph in full screen mode. ESC and F11 exit fullscreen mode.
 
