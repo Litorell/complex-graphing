@@ -12,7 +12,7 @@
 *   [Variabelfönstret](#variabelfönstret)
 *   [Exempelfunktioner du kan testa](#exempelfunktioner-du-kan-testa)
 
-<hr>
+---
 
 ## Graffönstret
 
@@ -49,7 +49,7 @@ Grafen har tre axlar, röd, grön och blå. Den gröna axeln visar in-värdet (d
 
 **x Offset**, **Real Offset** och **Imaginary Offset** används för att förflytta grafen manuellt.
 
-<hr>
+---
 
 ## Funktionsfönstret
 
@@ -141,7 +141,7 @@ motsvarar att skriva
 (3 * x) + (2 ^ x)
 ```
 
-<hr>
+---
 
 ## Variabelfönstret
 
@@ -154,7 +154,7 @@ Det finns två olika sorters variabler:
 *   constant - En konstant har ett värde som kan kan skriva in. Det går att specificera både den reella och imaginära delen.
 *   range - Range-variabler har ett min- och max-värde, och en slider där man kan justera värdet på variabeln. Grafen uppdateras kontinuerligt när man justerar slidern, vilket kan vara användbart.
 
-<hr>
+---
 
 ## Exempelfunktioner du kan testa
 

@@ -12,7 +12,7 @@
 *   [The variable window](#the-variable-window)
 *   [Functions worth trying](#functions-worth-trying)
 
-<hr>
+---
 
 ## The graphing window
 
@@ -49,7 +49,7 @@ The graph has three axes, red, green and blue. The green axis shows the input va
 
 **x Offset**, **Real Offset** and **Imaginary Offset** are used to translate the graph manually.
 
-<hr>
+---
 
 ## The function window
 
@@ -140,7 +140,7 @@ is equivalent to writing
 (3 * x) + (2 ^ x)
 ```
 
-<hr>
+---
 
 ## The variable window
 
@@ -153,7 +153,7 @@ There are two types of variables:
 *   constant - A constant has two values which you can enter, the real part and the imaginary.
 *   range - Range variables have a minimum and maximum value, and a slider which adjusts the value of the variable. The graph is updated continously when moving the slider.
 
-<hr>
+---
 
 ## Functions worth trying
 
