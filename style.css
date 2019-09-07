@@ -4,8 +4,46 @@
 
 */
 
+:root {
+    --canvas-bg: #f8f8f8;
+    --button-bg: #e8e8e8;
+    --button-color: #777;
+    --button-border: 1px solid rgba(0, 0, 0, 0.1);
+    --button-hover: #ddd;
+    --link-bg: #0002;
+    color: #222;
+    background: #fff;
+
+    --function-color: #222;
+    --label-bg: #000000B0;
+    --label-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --canvas-bg: #111;
+        --button-bg: #333;
+        --button-hover: #444;
+        --button-border: 1px solid rgba(255, 255, 255, 0.1);
+        --link-bg: #fff2;
+        color: #fff;
+        background: #222;
+
+        --function-color: #fff;
+        --label-bg: #ffffffB0;
+        --label-color: #222;
+    }
+
+    textarea, input, select {
+        background: #222;
+        color: #fff;
+        border: 1px solid #777;
+    }
+    
+}
+
 canvas {
-    background: #f8f8f8;
+    background: var(--canvas-bg);
     width: 100%;
 }
 
@@ -59,17 +97,17 @@ div.graph-controls {
 }
 
 .button {
-    background: #e8e8e8;
-	border: 1px solid rgba(0, 0, 0, 0.1);
+    background: var(--button-bg);
+	border: var(--button-border);
 	box-sizing: border-box;
     padding: 0.5rem 0.5rem;
     text-align: center;
     border-radius: 100vmax;
-    color: #777;
+    color: var(--button-color);
 }
 
 .button:hover {
-    background: #ddd;
+    background: var(--button-hover);
     cursor: pointer;
 }
 
@@ -95,7 +133,7 @@ a {
 }
 
 a:hover {
-    background: #0002;
+    background: var(--link-bg);
 }
 
 textarea {

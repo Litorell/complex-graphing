@@ -293,6 +293,15 @@ function drawCanvas3d(canvas, lineStart, lineEnd, lineStyle, view) {
     
 }
 
+function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name);
+}
+
+var functionColor = cssVar("--function-color");
+var labelBackground = cssVar("--label-bg");
+var labelColor = cssVar("--label-color");
+
+
 // 1px black
 var lineStyle = new LineStyle(1, "#000000");
 
@@ -321,6 +330,7 @@ function drawAxisLines(canvas, view) {
 
     let ctx = canvas.getContext("2d");
     ctx.font = `${20 * pixelRatio}px sans-serif`;
+    ctx.fillStyle = functionColor;
 
     let xVector;
     let yVector;
@@ -355,7 +365,7 @@ function drawAxisLines(canvas, view) {
 function drawFunction(canvas, begin, end, step = 0.1, view) {
     let pixelRatio = window.devicePixelRatio;
 
-    let style   = new LineStyle(1   * pixelRatio, "#222222");
+    let style   = new LineStyle(1.5 * pixelRatio, functionColor);
     let reStyle = new LineStyle(0.5 * pixelRatio, "#FF4444");
     let imStyle = new LineStyle(0.5 * pixelRatio, "#4444FF");
     
@@ -414,7 +424,7 @@ function drawLabel(canvas, view) {
 
                 originalFill = ctx.fillStyle;
 
-                ctx.fillStyle = "#000000B0";
+                ctx.fillStyle = labelBackground;
 
                 let pointX =  tracing[0] + width  * 0.5;
                 let pointY = -tracing[1] + height * 0.5;
@@ -436,7 +446,7 @@ function drawLabel(canvas, view) {
                 ctx.fill();
 
 
-                ctx.fillStyle = "#FFFFFF";
+                ctx.fillStyle = labelColor;
                 ctx.fillText(line1, pointX + 15 * pixelRatio, pointY -  4 * pixelRatio);
                 ctx.fillText(line2, pointX + 15 * pixelRatio, pointY + 14 * pixelRatio);
                 ctx.fillStyle = originalFill;
@@ -452,6 +462,7 @@ var zoom = document.getElementById("zoom");
 var xOffset = document.getElementById("x-offset");
 var yOffset = document.getElementById("y-offset");
 var zOffset = document.getElementById("z-offset");
+
 
 var view = new View(40, 30, [xOffset.value, yOffset.value, zOffset.value].map(x => Number(x)), 5);
 
