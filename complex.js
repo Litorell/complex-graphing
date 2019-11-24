@@ -111,8 +111,24 @@ class Complex {
     static divide(num1, num2) {
         if (num1.constructor !== Complex) num1 = new Complex(num1);
         if (num2.constructor !== Complex) num2 = new Complex(num2);
-        num2 = Complex.raise(num2, -1);
-        return Complex.multiply(num1, num2);
+
+        return Complex.multiply(num1, Complex.invert(num2));
+    }
+
+    /**
+     * The mulitplicative inverse for a number.
+     * @param {number|Complex} num 
+     * @returns {Complex}
+     */
+    static invert(num) {
+        if (num.constructor !== Complex) num = new Complex(num);
+
+        let a = num.re;
+        let b = num.im;
+
+        let absSquared = 1 / (Math.pow(a, 2) + Math.pow(b, 2));
+
+        return new Complex(a * absSquared, -b * absSquared)
     }
 
     /**
