@@ -1110,7 +1110,7 @@ mainCanvas.addEventListener("touchend", touchController);
  * Is called whenever there is a MouseEvent on the main canvas.
  * @param {MouseEvent} event 
  */
-function clickController (event) {
+function clickController(event) {
     if (event.getModifierState("Shift")) {
         function shiftMove(event) {
             setTracingPoint(event.offsetX, event.offsetY, mainCanvas);
@@ -1120,7 +1120,8 @@ function clickController (event) {
         mainCanvas.addEventListener("mouseup", () => {
             mainCanvas.removeEventListener("mousemove", shiftMove);
         });
-    } else if (event.ctrlKey) {
+    } else if (event.ctrlKey || event.button === 1) {
+		event.preventDefault()
         rotateGraph(event);
         
     } else {

@@ -23,7 +23,7 @@ The graph has three axes, red, green and blue. The green axis shows the input va
 ### Mouse Controls
 
 *   **Clicking and dragging** moves the graph around translationally.
-*   **CTRL-clicking and dragging** rotates the graph around.
+*   **CTRL or mouse wheel clicking and dragging** rotates the graph around.
 *   **Shift-clicking and dragging** moves the tracing point.
 *   **Scrolling** zooms in and out.
 *   **CTRL-Q** snaps the viewing angle to the closest 45 degrees (both longitudinally and laterally).

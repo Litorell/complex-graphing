@@ -23,7 +23,7 @@ Grafen har tre axlar, röd, grön och blå. Den gröna axeln visar in-värdet (d
 ### Muskontroller
 
 *   **Klicka och dra** förflyttar grafen.
-*   **CTRL-klicka och dra** roterar grafen.
+*   **CTRL- eller skrollklicka och dra** roterar grafen.
 *   **Shift-klicka och dra** flyttar trace-rutan.
 *   **Skrollning** zoomar in och ut.
 *   **CTRL-Q** roterar visningsvinkeln till de närmaste 45 graderna.
