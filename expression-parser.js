@@ -102,7 +102,7 @@ class ExpressionParser {
 
 
     /**
-     * Parse an infix notation expression into a postfix expression. Logic is taken largely from wikipedia:
+     * Parse an infix notation expression into a postfix expression. Uses the shunting-yard algorithm:
      * <br>
      * <a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm#The_algorithm_in_detail">https://en.wikipedia.org/wiki/Shunting-yard_algorithm#The_algorithm_in_detail</a>
      * @param {string} expression - The expression to parse written in infix notation.
