@@ -708,7 +708,7 @@ function updateVariableList(event) {
 
     let index = Array.prototype.slice.call(parent.parentElement.children).indexOf(parent);
 
-    // Type of the variable (e.g. constant, range or time)
+    // Type of the variable (e.g. constant or range)
     let type = parent.children[1].value;
 
     variableList[index].type = type;
@@ -723,11 +723,6 @@ function updateVariableList(event) {
             variableList[index].value = new Complex((parent.children[3].value - parent.children[2].value) * parent.children[4].value * 0.005 + Number(parent.children[2].value));
             variableList[index].min = parent.children[2].value;
             variableList[index].max = parent.children[3].value;
-            break;
-
-        // Time is not implemented yet.
-        case "time":
-            variableList[index].value = element.value;
             break;
     }
 
@@ -755,8 +750,7 @@ function updateVariableType(event) {
 
 var variableTypes = [
     "constant",
-    "range",
-    "time"
+    "range"
 ];
 
 /**
@@ -819,15 +813,6 @@ function variableListToHTML() {
                 <input class="updateVariables" type="range" min="0" max="200" value="${200 * ((variableList[i].value.re - variableList[i].min) / (variableList[i].max - variableList[i].min))}">
                 <span>${value}</span>`
                 break;
-            
-            // Time mode is not implemented yet
-            case "time":
-                html += `
-                Min: <input class="updateVariables" type="number" value="${variableList[i].min}">
-                Max: <input class="updateVariables" type="number" value="${variableList[i].max}">
-                Step: <input class="updateVariables" type="number" value="${variableList[i].step}">`
-                break;
-
         }
         html += `<p class="button" onclick="deleteVariable(event)">Delete</p>`
 
