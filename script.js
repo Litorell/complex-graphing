@@ -640,7 +640,7 @@ function userFunction(num) {
         if (line === "x") {
             functionStack.push(num);
         // Check if line should be interpreted or if it is commented out or empty
-        } else if (line !== "" && line [0] !== "#") {
+        } else if (line !== "" && line[0] !== "#") {
             let variableIndex = getVariableIndex(line);
             let isCalculatedVariable = line in calculatedVars;
             
